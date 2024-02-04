@@ -36,7 +36,7 @@ class SalesFragment : Fragment() {
         listView = view.findViewById(R.id.listViewSalesItems)
 
         // Set up sample data for the ListView
-        val items = dbHelper.getAllProductNames().toTypedArray()
+        val items = dbHelper.getAllProducts().toTypedArray()
 
         // Create and set the custom adapter
         val adapter = ItemListAdapter(requireContext(), items)
@@ -45,10 +45,11 @@ class SalesFragment : Fragment() {
         // Set item click listener
         listView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             // Handle item click here
-            val selectedItem = items[position]
+            val selectedItem = items[position].name
             Toast.makeText(requireContext(), "Clicked: $selectedItem", Toast.LENGTH_SHORT).show()
             // Show the pop-up modal for modifying the quantity and adding the item to the cart
             showItemDialog(selectedItem)
+
         }
 
         return view
@@ -92,5 +93,6 @@ class SalesFragment : Fragment() {
     private fun showItemDialog(itemName: String) {
         val dialog = ItemDialogFragment.newInstance(itemName)
         dialog.show(parentFragmentManager, "ItemDialogFragment")
+        
     }
 }

@@ -1,12 +1,13 @@
 package com.appdev.posheesh
 
+import android.content.ContentResolver
 import android.content.Context
+import android.content.res.Resources
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.net.Uri
 import com.appdev.posheesh.Classes.Products
-import java.io.BufferedReader
-import java.io.InputStreamReader
 
 class DatabaseHandler(private val context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -34,7 +35,7 @@ class DatabaseHandler(private val context: Context) :
                     "quantity INTEGER DEFAULT 0," +
                     "selling_price REAL DEFAULT 0.0," +
                     "buying_price REAL DEFAULT 0.0," +
-                    "image_url TEXT," +
+                    "image_url INTEGER," +
                     "code TEXT," +
                     "FOREIGN KEY (category_id) REFERENCES categories(id)" +
                     ")"
@@ -45,11 +46,15 @@ class DatabaseHandler(private val context: Context) :
             "INSERT INTO products " +
                     "(name, description, category_id, quantity, selling_price, buying_price, image_url, code) " +
                     "VALUES " +
-                    "('Product 1', 'Description 1', 1, 10, 50.0, 30.0, 'image1.jpg', 'P001'), " +
-                    "('Product 2', 'Description 2', 2, 20, 60.0, 40.0, 'image2.jpg', 'P002'), " +
-                    "('Product 3', 'Description 3', 1, 15, 70.0, 45.0, 'image3.jpg', 'P003'), " +
-                    "('Product 4', 'Description 4', 3, 30, 80.0, 55.0, 'image4.jpg', 'P004'), " +
-                    "('Product 5', 'Description 5', 2, 25, 90.0, 60.0, 'image5.jpg', 'P005')"
+                    "('Breakfast Steak', 'Our juicy burger patty charbroiled to perfection topped with our signature brown gravy. Served with sunny side up egg, french fries and garlic rice. Comes with your choice of of hot drinks (Hot Chocolate or Hot Coffee ), 12 oz. Iced Tea or 12 oz. Soft drink', 1, 10, 99.0, 60.0, "+R.drawable.breakfast_steak+", 'P001'), " +
+                    "('Chorizo', 'Chorizo with Sunny Side Up Egg and Garlic Rice', 1, 20, 60.0, 40.0,"+R.drawable.new_chorizo+", 'P002'), " +
+                    "('Longaniza', 'Longaniza with Sunny Side Up Egg and Garlic Rice', 1, 15, 70.0, 45.0,"+R.drawable.new_longaniza+", 'P003'), " +
+                    "('Hotdog', 'Hotdog with Sunny Side Up Egg and Garlic Rice', 1, 30, 80.0, 55.0, "+R.drawable.new_hotdog+", 'P004'), " +
+                    "('Tocino', 'Tocino with Sunny Side Up Egg and Garlic Rice', 1, 25, 90.0, 60.0, "+R.drawable.new_tocino+", 'P005')" +
+                    "('PM 2 – BRUTE BURGER WITH REGULAR FRIES + DRINK', 'Brute Burger with regular french fries, 12 oz Softdrink or Iced tea', 2, 30, 80.0, 55.0, "+R.drawable.pm2_brute_burger_with_regular_french_fries+", 'P006'), " +
+                    "('PM 4 – CHICKEN BURGER + DRINK', 'Chicken Burger', 2, 30, 80.0, 55.0, "+R.drawable.pm4_chicken_burger_1+", 'P007'), " +
+                    "('PM 12 – HALF SPAGHETTI AND 1PC. CHICKEN BRUTUS + DRINK', 2, 30, 129.0, 55.0, "+R.drawable.pm12_1half_spaghetti_and_1pc__chicken_brutus_1+", 'P008'), " +
+                    "('HOT CHOCO', 3, 30, 49.0, 20.0, "+R.drawable.hot_choco_1+", 'P009')"
         )
     }
 
@@ -58,6 +63,12 @@ class DatabaseHandler(private val context: Context) :
         // Handle database upgrades if necessary
     }
 
+    fun getImageUri(context: Context, resourceId: Int): Uri {
+        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE +
+                "://" + context.resources.getResourcePackageName(resourceId) +
+                "/" + context.resources.getResourceTypeName(resourceId) +
+                "/" + context.resources.getResourceEntryName(resourceId))
+    }
     fun getAllProducts(): MutableList<Products> {
         val productList = mutableListOf<Products>()
         val db = readableDatabase
@@ -83,7 +94,7 @@ class DatabaseHandler(private val context: Context) :
                 val quantity = it.getInt(quantityColumnIndex)
                 val sellingPrice = it.getDouble(sellingPriceColumnIndex)
                 val buyingPrice = it.getDouble(buyingPriceColumnIndex)
-                val imageUrl = it.getString(imageUrlColumnIndex)
+                val imageUrl = it.getInt(imageUrlColumnIndex)
                 val code = it.getString(codeColumnIndex)
 
                 val product = Products(id, name, description, isActive, categoryId, quantity, sellingPrice, buyingPrice, imageUrl, code)

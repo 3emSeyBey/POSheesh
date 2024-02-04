@@ -9,6 +9,6 @@ data class Products (
     val quantity: Int,
     val sellingPrice: Double,
     val buyingPrice: Double,
-    val imageUrl: String?,
+    val imageUrl: Int,
     val code: String
     )
