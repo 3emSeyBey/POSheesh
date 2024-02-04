@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.appdev.posheesh.Classes.Products
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -57,17 +58,36 @@ class DatabaseHandler(private val context: Context) :
         // Handle database upgrades if necessary
     }
 
-    fun getAllProductNames(): MutableList<String> {
-        val productList = mutableListOf<String>()
+    fun getAllProducts(): MutableList<Products> {
+        val productList = mutableListOf<Products>()
         val db = readableDatabase
         val cursor: Cursor? = db.rawQuery("SELECT * FROM products", null)
         cursor?.use {
+            val idColumnIndex = it.getColumnIndex("id")
             val nameColumnIndex = it.getColumnIndex("name")
-            if (nameColumnIndex != -1) {
-                while (it.moveToNext()) {
-                    val productName = it.getString(nameColumnIndex)
-                    productList.add(productName)
-                }
+            val descriptionColumnIndex = it.getColumnIndex("description")
+            val isActiveColumnIndex = it.getColumnIndex("isActive")
+            val categoryIdColumnIndex = it.getColumnIndex("category_id")
+            val quantityColumnIndex = it.getColumnIndex("quantity")
+            val sellingPriceColumnIndex = it.getColumnIndex("selling_price")
+            val buyingPriceColumnIndex = it.getColumnIndex("buying_price")
+            val imageUrlColumnIndex = it.getColumnIndex("image_url")
+            val codeColumnIndex = it.getColumnIndex("code")
+
+            while (it.moveToNext()) {
+                val id = it.getInt(idColumnIndex)
+                val name = it.getString(nameColumnIndex)
+                val description = it.getString(descriptionColumnIndex)
+                val isActive = it.getInt(isActiveColumnIndex) == 1 // Assuming 1 for true, 0 for false
+                val categoryId = it.getInt(categoryIdColumnIndex)
+                val quantity = it.getInt(quantityColumnIndex)
+                val sellingPrice = it.getDouble(sellingPriceColumnIndex)
+                val buyingPrice = it.getDouble(buyingPriceColumnIndex)
+                val imageUrl = it.getString(imageUrlColumnIndex)
+                val code = it.getString(codeColumnIndex)
+
+                val product = Products(id, name, description, isActive, categoryId, quantity, sellingPrice, buyingPrice, imageUrl, code)
+                productList.add(product)
             }
         }
         cursor?.close()
