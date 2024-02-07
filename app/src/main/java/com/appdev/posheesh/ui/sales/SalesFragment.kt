@@ -15,11 +15,19 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import android.app.Activity
+import android.content.Context
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.findNavController
+import com.appdev.posheesh.Classes.FragmentChangeListener
 import com.appdev.posheesh.Classes.Products
 import com.appdev.posheesh.R
 import com.appdev.posheesh.databinding.FragmentSalesBinding
 import com.appdev.posheesh.DatabaseHandler
+import com.appdev.posheesh.MainActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class SalesFragment : Fragment() {
@@ -37,9 +45,12 @@ class SalesFragment : Fragment() {
     private lateinit var etSearch: TextView
     private lateinit var dbHelper: DatabaseHandler
     private lateinit var fabShowCart: FloatingActionButton
+    private lateinit var _menuChange: MainActivity
 
     private val binding get() = _binding!!
     private var spinnerIndex: Int = 0
+    private var fragmentChangeListener: FragmentChangeListener? = null
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -82,8 +93,26 @@ class SalesFragment : Fragment() {
                 // Not needed
             }
         })
-
         return view
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is FragmentChangeListener) {
+            fragmentChangeListener = context
+        } else {
+            throw RuntimeException("$context must implement FragmentChangeListener")
+        }
+    }
+    override fun onStart() {
+        super.onStart()
+        fragmentChangeListener?.onFragmentChanged("Sales")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // Clear fragmentChangeListener reference to avoid memory leaks
+        fragmentChangeListener = null
     }
     private fun displayItemsByCategoryId(categoryId: Int) {
         val items = dbHelper.getProductsByCategoryId(categoryId).toTypedArray()
