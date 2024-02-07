@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.appdev.posheesh"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -47,11 +47,13 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.6")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.6")
     implementation("com.google.android.gms:play-services-vision:20.1.3")
+    implementation("org.apache.poi:poi:5.2.5")
+    implementation("org.apache.poi:poi-ooxml:5.2.5")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
-    implementation("androidx.sqlite:sqlite:2.1.0")
+    implementation("androidx.sqlite:sqlite-ktx:2.4.0")
     implementation("com.squareup.picasso:picasso:2.71828")
 
 }

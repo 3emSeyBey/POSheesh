@@ -245,4 +245,6 @@ class SalesFragment : Fragment() {
         val dialog = CartFragment(cart)
         dialog.show(parentFragmentManager, "CartFragment")
     }
+
+
 }

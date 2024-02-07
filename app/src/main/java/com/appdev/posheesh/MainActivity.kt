@@ -1,8 +1,12 @@
 package com.appdev.posheesh
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
@@ -12,8 +16,11 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import com.appdev.posheesh.Classes.FragmentChangeListener
 import com.appdev.posheesh.databinding.ActivityMainBinding
+import com.appdev.posheesh.ui.sales.ExcelHandler
+import java.io.File
 
 
 class MainActivity : AppCompatActivity(), FragmentChangeListener {
@@ -46,7 +53,6 @@ class MainActivity : AppCompatActivity(), FragmentChangeListener {
         } else {
             currentMenu?.clear() // Clear existing menu items
             menuInflater.inflate(R.menu.dashboard_menu, currentMenu)
-
         }
     }
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -54,6 +60,25 @@ class MainActivity : AppCompatActivity(), FragmentChangeListener {
         // Save the reference to the menu object
         currentMenu = menu
         return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle menu item selection
+        when (item.itemId) {
+            R.id.sales_menu_export -> {
+                val dbHelper = DatabaseHandler(this)
+                val database = dbHelper.writableDatabase
+                val file = ExcelHandler().exportToExcel(this, database)
+                val fileString = file.toString()
+                val uri: Uri = Uri.parse(fileString)
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.setDataAndType(uri, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                startActivity(intent)
+
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
