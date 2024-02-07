@@ -15,19 +15,15 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import android.app.Activity
 import android.content.Context
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.fragment.findNavController
+import android.content.Intent
+import android.widget.ImageView
+import com.appdev.posheesh.BarcodeScan
 import com.appdev.posheesh.Classes.FragmentChangeListener
 import com.appdev.posheesh.Classes.Products
 import com.appdev.posheesh.R
 import com.appdev.posheesh.databinding.FragmentSalesBinding
 import com.appdev.posheesh.DatabaseHandler
-import com.appdev.posheesh.MainActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class SalesFragment : Fragment() {
@@ -45,7 +41,6 @@ class SalesFragment : Fragment() {
     private lateinit var etSearch: TextView
     private lateinit var dbHelper: DatabaseHandler
     private lateinit var fabShowCart: FloatingActionButton
-    private lateinit var _menuChange: MainActivity
 
     private val binding get() = _binding!!
     private var spinnerIndex: Int = 0
@@ -55,7 +50,7 @@ class SalesFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentSalesBinding.inflate(inflater, container, false)
         val view = binding.root
 
@@ -73,6 +68,12 @@ class SalesFragment : Fragment() {
 
         // Find the ListView
         listView = view.findViewById(R.id.listViewSalesItems)
+
+        val scanBarcodeImg: ImageView = view.findViewById(R.id.cameraIcon)
+        scanBarcodeImg.setOnClickListener {
+            val intent = Intent(requireActivity(), BarcodeScan::class.java)
+            startActivity(intent)
+        }
 
         // Display items based on the category ID
         displayItemsByCategoryId(0)
@@ -95,7 +96,9 @@ class SalesFragment : Fragment() {
         })
         return view
     }
+    //All about Barcode Scanning//
 
+    //End Barcode Scanning Function//
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is FragmentChangeListener) {
@@ -108,7 +111,6 @@ class SalesFragment : Fragment() {
         super.onStart()
         fragmentChangeListener?.onFragmentChanged("Sales")
     }
-
     override fun onStop() {
         super.onStop()
         // Clear fragmentChangeListener reference to avoid memory leaks
@@ -130,7 +132,6 @@ class SalesFragment : Fragment() {
             showItemDialog(selectedItem)
         }
     }
-
     private fun displayItemsByNameSearch(nameString :String, categoryId: Int) {
         val items = dbHelper.getProductsByNameSearch(nameString, categoryId).toTypedArray()
 
@@ -155,7 +156,7 @@ class SalesFragment : Fragment() {
         val spinner: Spinner = view.findViewById(R.id.spinnerFilter)
         val categories = dbHelper.getAllCategory().toTypedArray()
         val categoryList = mutableListOf<String>()
-        categoryList.add("Select Category")
+        categoryList.add("All Items")
         categories.forEach { item ->
             categoryList.add(item.name)
         }
@@ -181,20 +182,16 @@ class SalesFragment : Fragment() {
             }
         }
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-
     private fun showItemDialog(item: Products) {
         val dialog = ItemDialogFragment.newInstance(item)
         dialog.show(parentFragmentManager, "ItemDialogFragment")
-
     }
-
     private fun showCart(){
-        val dialog = CartFragment(SalesFragment.cart)
+        val dialog = CartFragment(cart)
         dialog.show(parentFragmentManager, "CartFragment")
     }
 }
