@@ -2,6 +2,7 @@ package com.appdev.posheesh.ui.sales
 
 import CartFragment
 import ItemListAdapter
+import android.app.Activity.RESULT_OK
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -17,6 +18,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import android.content.Context
 import android.content.Intent
+import android.speech.RecognizerIntent
 import android.widget.ImageView
 import com.appdev.posheesh.BarcodeScan
 import com.appdev.posheesh.Classes.FragmentChangeListener
@@ -25,6 +27,8 @@ import com.appdev.posheesh.R
 import com.appdev.posheesh.databinding.FragmentSalesBinding
 import com.appdev.posheesh.DatabaseHandler
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.util.Locale
+import java.util.Objects
 
 class SalesFragment : Fragment() {
     companion object {
@@ -41,10 +45,11 @@ class SalesFragment : Fragment() {
     private lateinit var etSearch: TextView
     private lateinit var dbHelper: DatabaseHandler
     private lateinit var fabShowCart: FloatingActionButton
-
+    private lateinit var micImg: ImageView
     private val binding get() = _binding!!
     private var spinnerIndex: Int = 0
     private var fragmentChangeListener: FragmentChangeListener? = null
+    private val REQUEST_CODE_SPEECH_INPUT = 1
 
 
     override fun onCreateView(
@@ -75,6 +80,31 @@ class SalesFragment : Fragment() {
             startActivity(intent)
         }
 
+        micImg = view.findViewById(R.id.microphoneIcon)
+        micImg.setOnClickListener{
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+            intent.putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+            )
+            intent.putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE,
+                Locale.getDefault()
+            )
+            intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to text")
+            try {
+                startActivityForResult(intent, REQUEST_CODE_SPEECH_INPUT)
+            } catch (e: Exception) {
+                // on below line we are displaying error message in toast
+                Toast
+                    .makeText(
+                        this@SalesFragment.context, " " + e.message,
+                        Toast.LENGTH_SHORT
+                    )
+                    .show()
+            }
+        }
+
         // Display items based on the category ID
         displayItemsByCategoryId(0)
 
@@ -97,7 +127,28 @@ class SalesFragment : Fragment() {
         return view
     }
     //All about Barcode Scanning//
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
+        // in this method we are checking request
+        // code with our result code.
+        if (requestCode == REQUEST_CODE_SPEECH_INPUT) {
+            // on below line we are checking if result code is ok
+            if (resultCode == RESULT_OK && data != null) {
+
+                // in that case we are extracting the
+                // data from our array list
+                val res: ArrayList<String> =
+                    data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS) as ArrayList<String>
+
+                // on below line we are setting data
+                // to our output text view\
+                etSearch.setText(
+                    Objects.requireNonNull(res)[0]
+                )
+            }
+        }
+    }
     //End Barcode Scanning Function//
     override fun onAttach(context: Context) {
         super.onAttach(context)
