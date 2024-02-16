@@ -20,6 +20,9 @@ import android.content.Context
 import android.content.Intent
 import android.speech.RecognizerIntent
 import android.widget.ImageView
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.appdev.posheesh.BarcodeScan
 import com.appdev.posheesh.Classes.FragmentChangeListener
 import com.appdev.posheesh.Classes.Products
@@ -30,7 +33,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.Locale
 import java.util.Objects
 
-class SalesFragment : Fragment() {
+class SalesFragment : Fragment(), ItemListAdapter.ItemClickListener  {
     companion object {
         val cart: MutableList<Map<String, Int>> = mutableListOf() // Change to MutableList
 
@@ -41,7 +44,7 @@ class SalesFragment : Fragment() {
     }
 
     private var _binding: FragmentSalesBinding? = null
-    private lateinit var listView: ListView
+    private lateinit var recyclerView: RecyclerView
     private lateinit var etSearch: TextView
     private lateinit var dbHelper: DatabaseHandler
     private lateinit var fabShowCart: FloatingActionButton
@@ -72,7 +75,9 @@ class SalesFragment : Fragment() {
 
 
         // Find the ListView
-        listView = view.findViewById(R.id.listViewSalesItems)
+        recyclerView = view.findViewById(R.id.recyclerViewSalesItems)
+        recyclerView.layoutManager = GridLayoutManager(requireContext(), 2) // Set up GridLayoutManager with 2 columns
+
 
         val scanBarcodeImg: ImageView = view.findViewById(R.id.cameraIcon)
         scanBarcodeImg.setOnClickListener {
@@ -170,34 +175,17 @@ class SalesFragment : Fragment() {
     private fun displayItemsByCategoryId(categoryId: Int) {
         val items = dbHelper.getProductsByCategoryId(categoryId).toTypedArray()
 
-        // Create and set the custom adapter
-        val adapter = ItemListAdapter(requireContext(), items)
-        listView.adapter = adapter
-
-        // Set item click listener
-        listView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            // Handle item click here
-            val selectedItem = items[position]
-            Toast.makeText(requireContext(), "Clicked: $selectedItem", Toast.LENGTH_SHORT).show()
-            // Show the pop-up modal for modifying the quantity and adding the item to the cart
-            showItemDialog(selectedItem)
-        }
+        // Create and set the custom adapter with item click listener
+        val adapter = ItemListAdapter(requireContext(), items, this)
+        recyclerView.adapter = adapter
     }
     private fun displayItemsByNameSearch(nameString :String, categoryId: Int) {
         val items = dbHelper.getProductsByNameSearch(nameString, categoryId).toTypedArray()
 
         // Create and set the custom adapter
-        val adapter = ItemListAdapter(requireContext(), items)
-        listView.adapter = adapter
-
-        // Set item click listener
-        listView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            // Handle item click here
-            val selectedItem = items[position]
-            Toast.makeText(requireContext(), "Clicked: $selectedItem", Toast.LENGTH_SHORT).show()
-            // Show the pop-up modal for modifying the quantity and adding the item to the cart
-            showItemDialog(selectedItem)
-        }
+        // Create and set the custom adapter with item click listener
+        val adapter = ItemListAdapter(requireContext(), items, this)
+        recyclerView.adapter = adapter
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -245,6 +233,10 @@ class SalesFragment : Fragment() {
         val dialog = CartFragment(cart)
         dialog.show(parentFragmentManager, "CartFragment")
     }
-
-
+    override fun onItemClick(item: Products) {
+        // Handle item click here
+        Toast.makeText(requireContext(), "Clicked: $item", Toast.LENGTH_SHORT).show()
+        // Show the pop-up modal for modifying the quantity and adding the item to the cart
+        showItemDialog(item)
+    }
 }

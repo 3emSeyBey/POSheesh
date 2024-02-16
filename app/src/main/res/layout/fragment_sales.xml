@@ -21,16 +21,31 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:elevation="10dp"
+            android:background="@drawable/search_box_background"> <!-- Add a custom background shape here -->
             <EditText
                 android:id="@+id/etSearch"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="30dp"
                 android:layout_margin="8dp"
                 android:layout_weight="1"
                 android:hint="Search"
                 android:inputType="text"
-                android:autofillHints="Search" />
+                android:autofillHints="Search"
+                android:background="@null"
+                android:textSize="16sp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"/>
+
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="|"
+    android:padding="8dp"
+    android:textSize="22sp"/>
             <!-- Microphone Icon -->
             <ImageView
                 android:id="@+id/microphoneIcon"
@@ -41,18 +56,22 @@
                 android:clickable="true"
                 android:padding="8dp"
                 android:focusable="true"/>
+
             <!-- Camera Icon -->
             <ImageView
                 android:id="@+id/cameraIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_barcode_scan"
-                android:padding="8dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:paddingRight="15dp"
                 android:contentDescription="Camera Icon"
                 android:clickable="true"
                 android:focusable="true"
                 android:layout_marginStart="8dp"/>
         </LinearLayout>
+
 
         <!-- Spinner Filter -->
         <Spinner
@@ -60,48 +79,57 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="-8dp"
-            />
+            android:layout_marginTop="5dp"
+        />
 
     </LinearLayout>
 
-
     <!-- List Items -->
-    <ListView
-        android:id="@+id/listViewSalesItems"
+    <!-- RecyclerView for displaying cards in a grid layout -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewSalesItems"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@id/textTotalAmount"
+        android:layout_margin="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/topLayout"
-        app:layout_constraintVertical_bias="1.0" />
+        android:background="@drawable/itemlist_background"
+        android:elevation="6dp"/>
 
     <!-- Total Amount Text -->
-    <TextView
-        android:id="@+id/textTotalAmount"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="Total Amount: $100"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:background="@color/material_dynamic_neutral0"
-        android:textColor="@android:color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabShowCart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_cart"
-        app:layout_constraintBottom_toTopOf="@+id/textTotalAmount"
+        app:layout_constraintBottom_toTopOf="@id/fabAddItem"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="30dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="30dp"
+        app:elevation="6dp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddItem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_additem"
+        app:layout_constraintBottom_toTopOf="@id/fabShowAIChat"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="30dp"
+        app:elevation="6dp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabShowAIChat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_chatbot"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"
         android:layout_marginRight="30dp"
         app:elevation="6dp" />
 

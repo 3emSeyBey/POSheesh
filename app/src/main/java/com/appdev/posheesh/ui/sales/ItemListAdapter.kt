@@ -1,48 +1,57 @@
 import android.content.Context
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import com.appdev.posheesh.Classes.Products
 import com.appdev.posheesh.R
 import com.squareup.picasso.Picasso
 
+class ItemListAdapter(private val context: Context, private val items: Array<Products>, private val itemClickListener: ItemClickListener) :
+    RecyclerView.Adapter<ItemListAdapter.ViewHolder>() {
 
-class ItemListAdapter(context: Context, private val items: Array<Products>) :
-    ArrayAdapter<Products>(context, 0, items) {
+    interface ItemClickListener {
+        fun onItemClick(item: Products)
+    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(context).inflate(R.layout.item_layout, parent, false)
+        return ViewHolder(view)
+    }
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        var itemView = convertView
-        if (itemView == null) {
-            itemView = LayoutInflater.from(context)
-                .inflate(R.layout.item_layout, parent, false)
-        }
-
-        // Get the item at the specified position
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currentItem = items[position]
 
-        // Set the item in the item_layout
-        //Image
-        val imageItemImageView: ImageView? = itemView?.findViewById(R.id.imageItem)
-        imageItemImageView?.setImageResource(currentItem.imageUrl)
+        // Set item data to views
+        holder.bind(currentItem)
+    }
 
-        //Name
-        val itemNameTextView: TextView? = itemView?.findViewById(R.id.textItemName)
-        itemNameTextView?.text = currentItem.name
+    override fun getItemCount(): Int {
+        return items.size
+    }
 
-        //Price
-        val itemPriceTextView: TextView? = itemView?.findViewById(R.id.textPrice)
-        itemPriceTextView?.text = "Price:" +currentItem.sellingPrice.toString()
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+        init {
+            itemView.setOnClickListener(this)
+        }
+        private val imageItemImageView: ImageView = itemView.findViewById(R.id.imageItem)
+        private val itemNameTextView: TextView = itemView.findViewById(R.id.textItemName)
+        private val itemPriceTextView: TextView = itemView.findViewById(R.id.textPrice)
 
-        //Stock Remaining
-        val itemStockRemainingTextView: TextView? = itemView?.findViewById(R.id.textStockRemaining)
-        itemStockRemainingTextView?.text ="Stock Remaining: " + currentItem.quantity.toString()
-
-        // You can set other item details here if needed
-
-        return itemView!!
+        override fun onClick(v: View?) {
+            val position = adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                val item = items[position]
+                itemClickListener.onItemClick(item)
+            }
+        }
+        fun bind(item: Products) {
+            // Bind item data to views
+            Picasso.get().load(item.imageUrl).into(imageItemImageView)
+            itemNameTextView.text = item.name
+            itemPriceTextView.text = "Price: ${item.sellingPrice}"
+            // You can set other item details here if needed
+        }
     }
 }
