@@ -1,6 +1,4 @@
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.os.Bundle
 import android.os.CancellationSignal
 import com.appdev.posheesh.R
@@ -11,10 +9,8 @@ import android.print.PrintDocumentAdapter
 import android.print.PrintDocumentInfo
 import android.print.PrintManager
 import androidx.appcompat.app.AppCompatActivity
-import com.itextpdf.io.image.ImageDataFactory
 import com.itextpdf.kernel.pdf.PdfWriter
 import com.itextpdf.layout.Document
-import com.itextpdf.layout.element.Image
 import com.itextpdf.layout.element.Table
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.usermodel.WorkbookFactory

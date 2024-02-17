@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.ListView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -21,7 +20,6 @@ import android.content.Intent
 import android.speech.RecognizerIntent
 import android.widget.ImageView
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.appdev.posheesh.BarcodeScan
 import com.appdev.posheesh.Classes.FragmentChangeListener
