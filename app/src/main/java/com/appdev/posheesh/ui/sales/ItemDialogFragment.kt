@@ -27,7 +27,6 @@ class ItemDialogFragment : DialogFragment() {
             args.putString(ITEM_NAME_KEY, item.name)
             args.putString(ITEM_DESCRIPTION_KEY, item.description)
             args.putDouble(ITEM_SELLING_PRICE_KEY, item.sellingPrice)
-            args.putInt(ITEM_ID_KEY, item.id)
             fragment.arguments = args
             return fragment
         }
@@ -97,7 +96,7 @@ class ItemDialogFragment : DialogFragment() {
             // You can access other item details using itemName, itemDescription, and itemSellingPrice
             val itemId = arguments?.getInt(ITEM_ID_KEY)
             if (itemId != null) {
-                SalesFragment.addToCart(itemId, quantityEditText.text.toString().toInt())
+               // SalesFragment.addToCart(itemId, quantityEditText.text.toString().toInt())
                 // Show a modal popup indicating the item has been added to the cart
                 val alertDialog = AlertDialog.Builder(requireContext())
                     .setTitle("Item Added to Cart")

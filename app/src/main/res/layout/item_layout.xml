@@ -5,6 +5,7 @@
     android:layout_height="200dp"
     android:orientation="vertical"
     android:padding="8dp"
+    android:elevation="8dp"
     android:background="@drawable/itemlist_background"
     android:gravity="center_horizontal"
     android:layout_margin="15dp">
@@ -17,6 +18,7 @@
         android:layout_gravity="center_horizontal"
         android:src="@drawable/ic_about"
         android:scaleType="centerCrop"
+        android:background="@color/default_background"
         android:layout_marginTop="8dp"/>
 
     <!-- Item Details -->
@@ -41,7 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Price: $10"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="@android:color/black"
             android:gravity="center" />
     </LinearLayout>
 

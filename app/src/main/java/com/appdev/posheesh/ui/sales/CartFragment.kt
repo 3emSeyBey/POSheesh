@@ -6,7 +6,7 @@ import androidx.fragment.app.DialogFragment
 import com.appdev.posheesh.R
 import com.appdev.posheesh.ui.sales.CartListAdapter
 
-class CartFragment(private val items: MutableList<Map<String, Int>>) : DialogFragment() {
+class CartFragment(private val items: MutableList<Map<String, Any>>) : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(requireContext())
         val inflater = requireActivity().layoutInflater

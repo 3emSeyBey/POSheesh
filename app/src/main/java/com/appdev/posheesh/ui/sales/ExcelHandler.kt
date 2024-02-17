@@ -31,19 +31,17 @@ public class ExcelHandler {
         }
         cursor.close()
 
-        // Save the workbook to a file
-        val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "data.xlsx")
+        // Save the workbook to a file in internal storage
+        val fileName = "data.xlsx"
+        val file = File(context.filesDir, fileName)
         try {
-            Toast.makeText(context, file.toString(), Toast.LENGTH_SHORT).show()
             val outputStream = FileOutputStream(file)
             workbook.write(outputStream)
             outputStream.close()
         } catch (e: IOException) {
-            Log.e("ExcelExporter", "Error exporting Excel file", e)
-            Toast.makeText(context, "Error exporting Excel file", Toast.LENGTH_SHORT).show()
-        } finally {
-            cursor.close()
+            e.printStackTrace()
         }
+
         return file
     }
 }

@@ -1,5 +1,6 @@
 package com.appdev.posheesh.ui.sales
 
+import com.appdev.posheesh.ui.sales.AddItemFragment
 import CartFragment
 import ItemListAdapter
 import android.app.Activity.RESULT_OK
@@ -31,12 +32,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.Locale
 import java.util.Objects
 
-class SalesFragment : Fragment(), ItemListAdapter.ItemClickListener  {
+class SalesFragment : Fragment(), ItemListAdapter.ItemClickListener, AddItemFragment.OnItemAddedListener{
     companion object {
-        val cart: MutableList<Map<String, Int>> = mutableListOf() // Change to MutableList
+        val cart: MutableList<Map<String, Any>> = mutableListOf() // Change to MutableList
 
-        fun addToCart(itemId: Int, itemQuantity: Int) {
-            val map: Map<String, Int> = mapOf("id" to itemId, "quantity" to itemQuantity)
+        fun addToCart(itemCode: String, itemQuantity: Int) {
+            val map: Map<String, Any> = mapOf("code" to itemCode, "quantity" to itemQuantity)
             cart.add(map)
         }
     }
@@ -45,7 +46,8 @@ class SalesFragment : Fragment(), ItemListAdapter.ItemClickListener  {
     private lateinit var recyclerView: RecyclerView
     private lateinit var etSearch: TextView
     private lateinit var dbHelper: DatabaseHandler
-    private lateinit var fabShowCart: FloatingActionButton
+    lateinit var fabShowCart: FloatingActionButton
+    private lateinit var fabAddItem: FloatingActionButton
     private lateinit var micImg: ImageView
     private val binding get() = _binding!!
     private var spinnerIndex: Int = 0
@@ -64,13 +66,17 @@ class SalesFragment : Fragment(), ItemListAdapter.ItemClickListener  {
 
         fabShowCart = view.findViewById(R.id.fabShowCart)
 
-        // Set OnClickListener to handle FAB clicks
         fabShowCart.setOnClickListener {
             // Add your logic here to show the cart's contents
             // For example, you can navigate to the cart fragment
             showCart()
         }
-
+        fabAddItem = view.findViewById(R.id.fabAddItem)
+        fabAddItem.setOnClickListener {
+            // Add your logic here to show the cart's contents
+            // For example, you can navigate to the cart fragment
+            addItem()
+        }
 
         // Find the ListView
         recyclerView = view.findViewById(R.id.recyclerViewSalesItems)
@@ -203,6 +209,7 @@ class SalesFragment : Fragment(), ItemListAdapter.ItemClickListener  {
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
+
         // Apply the adapter to the spinner
         spinner.adapter = adapter
 
@@ -231,7 +238,17 @@ class SalesFragment : Fragment(), ItemListAdapter.ItemClickListener  {
         val dialog = CartFragment(cart)
         dialog.show(parentFragmentManager, "CartFragment")
     }
+
+    private fun addItem(){
+        val dialog = AddItemFragment()
+        dialog.setOnItemAddedListener(this)
+        dialog.show(childFragmentManager, "com.appdev.posheesh.ui.sales.AddItemFragment")
+    }
     override fun onItemClick(item: Products) {
         showItemDialog(item)
+    }
+
+    override fun onItemAdded() {
+        displayItemsByCategoryId(spinnerIndex)
     }
 }

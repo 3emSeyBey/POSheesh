@@ -1,14 +1,12 @@
 package com.appdev.posheesh.Classes
 
+import android.net.Uri
+
 data class Products (
-    val id: Int,
     val name: String,
     val description: String?,
-    val isActive: Boolean,
     val categoryId: Int,
-    val quantity: Int,
     val sellingPrice: Double,
-    val buyingPrice: Double,
-    val imageUrl: Int,
+    val imageUri: String,
     val code: String
     )

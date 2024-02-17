@@ -1,18 +1,24 @@
 package com.appdev.posheesh
 
 import android.content.ContentResolver
+import android.content.ContentValues
 import android.content.Context
-import android.content.res.Resources
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.provider.MediaStore
+import android.util.Log
 import com.appdev.posheesh.Classes.Category
 import com.appdev.posheesh.Classes.Products
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 class DatabaseHandler(private val context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
-
     override fun onCreate(db: SQLiteDatabase) {
         // Create the categories table
         db.execSQL(
@@ -23,7 +29,7 @@ class DatabaseHandler(private val context: Context) :
         )
 
         // Populate the categories table with dummy entries
-        db.execSQL("INSERT INTO categories (name) VALUES ('Breakfast Meals'), ('Power Meals'), ('Beverages')")
+        db.execSQL("INSERT INTO categories (name) VALUES ('P39 Coffee')")
 
         // Create the products table
         db.execSQL(
@@ -36,69 +42,76 @@ class DatabaseHandler(private val context: Context) :
                     "quantity INTEGER DEFAULT 0," +
                     "selling_price REAL DEFAULT 0.0," +
                     "buying_price REAL DEFAULT 0.0," +
-                    "image_url INTEGER," +
+                    "image_url TEXT," +
                     "code TEXT," +
                     "FOREIGN KEY (category_id) REFERENCES categories(id)" +
                     ")"
         )
 
-        // Populate the products table with dummy entries
-        // Insert the first entry
-                db.execSQL("INSERT INTO products " +
-                        "(name, description, category_id, quantity, selling_price, buying_price, image_url, code) " +
-                        "VALUES " +
-                        "('Breakfast Steak', 'Our juicy burger patty charbroiled to perfection topped with our signature brown gravy. Served with sunny side up egg, french fries and garlic rice. Comes with your choice of of hot drinks (Hot Chocolate or Hot Coffee ), 12 oz. Iced Tea or 12 oz. Soft drink', 1, 10, 99.0, 60.0, "+R.drawable.breakfast_steak+", 'P001')")
+        // Insert product entries
+        val products = mutableListOf<Products>()
 
-        // Insert the second entry
-                db.execSQL("INSERT INTO products " +
-                        "(name, description, category_id, quantity, selling_price, buying_price, image_url, code) " +
-                        "VALUES " +
-                        "('Chorizo', 'Chorizo with Sunny Side Up Egg and Garlic Rice', 1, 20, 60.0, 40.0,"+R.drawable.new_chorizo+", 'P002')")
+        // Add the product entries to the list
+        val icedCaramelUri = saveImageToInternalStorage(R.drawable.iced_caramel)
+        val icedCaramelPath = icedCaramelUri?.let { getFilePathFromUri(context, it) }
+        icedCaramelPath?.let {
+            products.add(Products(name = "Iced Caramel Macchiatos", description = "Wapako katilaw ani, libre pls hehe",
+                categoryId = 1, sellingPrice = 39.0, imageUri = it, code = "P001"))
+        }
 
-        // Insert the third entry
-                db.execSQL("INSERT INTO products " +
-                        "(name, description, category_id, quantity, selling_price, buying_price, image_url, code) " +
-                        "VALUES " +
-                        "('Longaniza', 'Longaniza with Sunny Side Up Egg and Garlic Rice', 1, 15, 70.0, 45.0,"+R.drawable.new_longaniza+", 'P003')")
+        val donDarkoUri = saveImageToInternalStorage(R.drawable.don_darko)
+        val donDarkoPath = donDarkoUri?.let { getFilePathFromUri(context, it) }
+        donDarkoPath?.let {
+            products.add(Products(name = "Don Darko", description = "tsikolet", categoryId = 1, sellingPrice = 39.0,
+                imageUri = it, code = "P002"))
+        }
 
-        // Insert the fourth entry
-                db.execSQL("INSERT INTO products " +
-                        "(name, description, category_id, quantity, selling_price, buying_price, image_url, code) " +
-                        "VALUES " +
-                        "('Hotdog', 'Hotdog with Sunny Side Up Egg and Garlic Rice', 1, 30, 80.0, 55.0, "+R.drawable.new_hotdog+", 'P004')")
+        val donyaBerryUri = saveImageToInternalStorage(R.drawable.donya_berry)
+        val donyaBerryPath = donyaBerryUri?.let { getFilePathFromUri(context, it) }
+        donyaBerryPath?.let {
+            products.add(Products(name = "Donya Berry", description = "Kape nga penkpenk", categoryId = 1, sellingPrice = 39.0,
+                imageUri = it, code = "P003"))
+        }
 
-        // Insert the fifth entry
-                db.execSQL("INSERT INTO products " +
-                        "(name, description, category_id, quantity, selling_price, buying_price, image_url, code) " +
-                        "VALUES " +
-                        "('Tocino', 'Tocino with Sunny Side Up Egg and Garlic Rice', 1, 25, 90.0, 60.0, "+R.drawable.new_tocino+", 'P005')")
+        val donMatchattoUri = saveImageToInternalStorage(R.drawable.don_matchato)
+        val donMatchattoPath = donMatchattoUri?.let { getFilePathFromUri(context, it) }
+        donMatchattoPath?.let {
+            products.add(Products(name = "Don Matchatto", description = "Green nga Kape gikan Japan", categoryId = 1, sellingPrice = 39.0,
+                imageUri = it, code = "P004"))
+        }
 
-        // Insert the sixth entry
-                db.execSQL("INSERT INTO products " +
-                        "(name, description, category_id, quantity, selling_price, buying_price, image_url, code) " +
-                        "VALUES " +
-                        "('PM 2 – BRUTE BURGER WITH REGULAR FRIES + DRINK', 'Brute Burger with regular french fries, 12 oz Softdrink or Iced tea', 2, 30, 80.0, 55.0, "+R.drawable.pm2_brute_burger_with_regular_french_fries+", 'P006')")
+        // Insert product entries into the database
+        for (product in products) {
+            val contentValues = ContentValues().apply {
+                put("name", product.name)
+                put("description", product.description)
+                put("category_id", product.categoryId)
+                put("selling_price", product.sellingPrice)
+                put("image_url", product.imageUri.toString()) // Convert Uri to string
+                put("code", product.code)
+            }
 
-        // Insert the seventh entry
-                db.execSQL("INSERT INTO products " +
-                        "(name, description, category_id, quantity, selling_price, buying_price, image_url, code) " +
-                        "VALUES " +
-                        "('PM 4 – CHICKEN BURGER + DRINK', 'Chicken Burger', 2, 30, 80.0, 55.0, "+R.drawable.pm4_chicken_burger_1+", 'P007')")
-
-        // Insert the eighth entry
-                db.execSQL("INSERT INTO products " +
-                        "(name, description, category_id, quantity, selling_price, buying_price, image_url, code) " +
-                        "VALUES " +
-                        "('PM 12 – HALF SPAGHETTI AND 1PC. CHICKEN BRUTUS + DRINK', 'Half Spaghetti and 1pc. Chicken Brutus', 2, 30, 129.0, 55.0, "+R.drawable.pm12_1half_spaghetti_and_1pc__chicken_brutus_1+", 'P008')")
-
-        // Insert the ninth entry
-                db.execSQL("INSERT INTO products " +
-                        "(name, description, category_id, quantity, selling_price, buying_price, image_url, code) " +
-                        "VALUES " +
-                        "('HOT CHOCO', 'Hot Chocolate', 3, 30, 49.0, 20.0, "+R.drawable.hot_choco_1+", 'P009')")
+            db.insert("products", null, contentValues)
+        }
     }
 
+    fun saveImageToInternalStorage(resourceId: Int): Uri? {
+        val bitmap = BitmapFactory.decodeResource(context.resources, resourceId)
+        val imagesDir = context.filesDir
+        val imageFile = File(imagesDir, "image_${System.currentTimeMillis()}.jpg")
 
+        return try {
+            FileOutputStream(imageFile).use { outputStream ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                outputStream.flush()
+                outputStream.close()
+                Uri.fromFile(imageFile)
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
+    }
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         // Handle database upgrades if necessary
     }
@@ -121,7 +134,6 @@ class DatabaseHandler(private val context: Context) :
         db.close()
         return categoryList
     }
-
     fun getProductsByCategoryId(categoryId: Int): MutableList<Products> {
         val productList = mutableListOf<Products>()
         val db = readableDatabase
@@ -140,9 +152,7 @@ class DatabaseHandler(private val context: Context) :
             val descriptionColumnIndex = it.getColumnIndex("description")
             val isActiveColumnIndex = it.getColumnIndex("isActive")
             val categoryIdColumnIndex = it.getColumnIndex("category_id")
-            val quantityColumnIndex = it.getColumnIndex("quantity")
             val sellingPriceColumnIndex = it.getColumnIndex("selling_price")
-            val buyingPriceColumnIndex = it.getColumnIndex("buying_price")
             val imageUrlColumnIndex = it.getColumnIndex("image_url")
             val codeColumnIndex = it.getColumnIndex("code")
 
@@ -152,21 +162,45 @@ class DatabaseHandler(private val context: Context) :
                 val description = it.getString(descriptionColumnIndex)
                 val isActive = it.getInt(isActiveColumnIndex) == 1 // Assuming 1 for true, 0 for false
                 val categoryId = it.getInt(categoryIdColumnIndex)
-                val quantity = it.getInt(quantityColumnIndex)
                 val sellingPrice = it.getDouble(sellingPriceColumnIndex)
-                val buyingPrice = it.getDouble(buyingPriceColumnIndex)
-                val imageUrl = it.getInt(imageUrlColumnIndex)
+                val imageUrl = it.getString(imageUrlColumnIndex)
                 val code = it.getString(codeColumnIndex)
 
-                val product = Products(id, name, description, isActive, categoryId, quantity, sellingPrice, buyingPrice, imageUrl, code)
-                productList.add(product)
+                // Log the values of properties before creating the Products object
+                Log.d("ProductProperties", "ID: $id")
+                Log.d("ProductProperties", "Name: $name")
+                Log.d("ProductProperties", "Description: $description")
+                Log.d("ProductProperties", "isActive: $isActive")
+                Log.d("ProductProperties", "Category ID: $categoryId")
+                Log.d("ProductProperties", "Selling Price: $sellingPrice")
+                Log.d("ProductProperties", "Image URL: $imageUrl")
+                Log.d("ProductProperties", "Code: $code")
+
+// Create the Products object
+                val product = try {
+                    Products(name, description, categoryId, sellingPrice, imageUrl, code)
+                } catch (e: Exception) {
+                    // Log the exception if one occurs during object creation
+                    Log.e("ProductCreationError", "Error creating product: ${e.message}")
+                    null // Return null if product creation fails
+                }
+
+// Check if the product is null after creation
+                if (product != null) {
+                    // Proceed with using the product
+                    Log.d("ProductCreation", "Product created successfully: $product")
+                    productList.add(product)
+                } else {
+                    // Handle the case where product creation failed
+                    Log.w("ProductCreation", "Product creation failed: Product is null")
+                }
+
             }
         }
         cursor?.close()
         db.close()
         return productList
     }
-
     fun getProductsByNameSearch(searchString: String, categoryId: Int): MutableList<Products> {
         val productList = mutableListOf<Products>()
         val db = readableDatabase
@@ -186,9 +220,7 @@ class DatabaseHandler(private val context: Context) :
             val descriptionColumnIndex = it.getColumnIndex("description")
             val isActiveColumnIndex = it.getColumnIndex("isActive")
             val categoryIdColumnIndex = it.getColumnIndex("category_id")
-            val quantityColumnIndex = it.getColumnIndex("quantity")
             val sellingPriceColumnIndex = it.getColumnIndex("selling_price")
-            val buyingPriceColumnIndex = it.getColumnIndex("buying_price")
             val imageUrlColumnIndex = it.getColumnIndex("image_url")
             val codeColumnIndex = it.getColumnIndex("code")
 
@@ -198,13 +230,11 @@ class DatabaseHandler(private val context: Context) :
                 val description = it.getString(descriptionColumnIndex)
                 val isActive = it.getInt(isActiveColumnIndex) == 1 // Assuming 1 for true, 0 for false
                 val categoryId = it.getInt(categoryIdColumnIndex)
-                val quantity = it.getInt(quantityColumnIndex)
                 val sellingPrice = it.getDouble(sellingPriceColumnIndex)
-                val buyingPrice = it.getDouble(buyingPriceColumnIndex)
-                val imageUrl = it.getInt(imageUrlColumnIndex)
+                val imageUrl = it.getString(imageUrlColumnIndex)
                 val code = it.getString(codeColumnIndex)
 
-                val product = Products(id, name, description, isActive, categoryId, quantity, sellingPrice, buyingPrice, imageUrl, code)
+                val product = Products(name, description, categoryId, sellingPrice, imageUrl, code)
                 productList.add(product)
             }
         }
@@ -212,9 +242,9 @@ class DatabaseHandler(private val context: Context) :
         db.close()
         return productList
     }
-    fun getProductById(itemId: Int): Products? {
+    fun getProductByCode(itemCode: Any): Products? {
         val db = readableDatabase
-        val cursor: Cursor? = db.rawQuery("SELECT * FROM products WHERE id = ?", arrayOf(itemId.toString()))
+        val cursor: Cursor? = db.rawQuery("SELECT * FROM products WHERE code = ?", arrayOf(itemCode.toString()))
 
         var product: Products? = null
 
@@ -224,9 +254,7 @@ class DatabaseHandler(private val context: Context) :
             val descriptionColumnIndex = it.getColumnIndex("description")
             val isActiveColumnIndex = it.getColumnIndex("isActive")
             val categoryIdColumnIndex = it.getColumnIndex("category_id")
-            val quantityColumnIndex = it.getColumnIndex("quantity")
             val sellingPriceColumnIndex = it.getColumnIndex("selling_price")
-            val buyingPriceColumnIndex = it.getColumnIndex("buying_price")
             val imageUrlColumnIndex = it.getColumnIndex("image_url")
             val codeColumnIndex = it.getColumnIndex("code")
 
@@ -236,13 +264,11 @@ class DatabaseHandler(private val context: Context) :
                 val description = it.getString(descriptionColumnIndex)
                 val isActive = it.getInt(isActiveColumnIndex) == 1 // Assuming 1 for true, 0 for false
                 val categoryId = it.getInt(categoryIdColumnIndex)
-                val quantity = it.getInt(quantityColumnIndex)
                 val sellingPrice = it.getDouble(sellingPriceColumnIndex)
-                val buyingPrice = it.getDouble(buyingPriceColumnIndex)
-                val imageUrl = it.getInt(imageUrlColumnIndex)
+                val imageUri = it.getString(imageUrlColumnIndex)
                 val code = it.getString(codeColumnIndex)
 
-                product = Products(id, name, description, isActive, categoryId, quantity, sellingPrice, buyingPrice, imageUrl, code)
+                product = Products(name, description, categoryId, sellingPrice, imageUri, code)
             }
         }
 
@@ -250,6 +276,34 @@ class DatabaseHandler(private val context: Context) :
         db.close()
 
         return product
+    }
+    fun getFilePathFromUri(context: Context, uri: Uri): String? {
+        val filePath: String?
+        val cursor = context.contentResolver.query(uri, null, null, null, null)
+        if (cursor != null) {
+            cursor.moveToFirst()
+            val columnIndex = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA)
+            filePath = cursor.getString(columnIndex)
+            cursor.close()
+        } else {
+            filePath = uri.path // Fallback to URI path if cursor is null
+        }
+        return filePath
+    }
+    private fun getUriFromResourceId(resourceId: Int): Uri {
+        val uri: Uri = Uri.parse(
+            ContentResolver.SCHEME_ANDROID_RESOURCE +
+                "://" + context.resources.getResourcePackageName(resourceId)
+                + '/' + context.resources.getResourceTypeName(resourceId)
+                + '/' + context.resources.getResourceEntryName(resourceId))
+        return uri
+    }
+    fun addProduct(product: Products) {
+        val sql = "INSERT INTO products (name, description, category_id, selling_price, image_url, code) VALUES (?, ?, ?, ?, ?, ?)"
+
+        val database = writableDatabase
+        database.execSQL(sql, arrayOf(product.name, product.description, product.categoryId, product.sellingPrice, product.imageUri, product.code))
+        database.close()
     }
 
     companion object {
