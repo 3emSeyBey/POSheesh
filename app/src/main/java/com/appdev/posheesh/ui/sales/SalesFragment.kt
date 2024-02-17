@@ -234,9 +234,6 @@ class SalesFragment : Fragment(), ItemListAdapter.ItemClickListener  {
         dialog.show(parentFragmentManager, "CartFragment")
     }
     override fun onItemClick(item: Products) {
-        // Handle item click here
-        Toast.makeText(requireContext(), "Clicked: $item", Toast.LENGTH_SHORT).show()
-        // Show the pop-up modal for modifying the quantity and adding the item to the cart
         showItemDialog(item)
     }
 }

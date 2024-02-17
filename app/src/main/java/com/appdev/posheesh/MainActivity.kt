@@ -1,13 +1,11 @@
 package com.appdev.posheesh
 
-import android.content.Context
+import PrintActivity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -16,11 +14,9 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.FileProvider
 import com.appdev.posheesh.Classes.FragmentChangeListener
 import com.appdev.posheesh.databinding.ActivityMainBinding
 import com.appdev.posheesh.ui.sales.ExcelHandler
-import java.io.File
 
 
 class MainActivity : AppCompatActivity(), FragmentChangeListener {
@@ -75,7 +71,13 @@ class MainActivity : AppCompatActivity(), FragmentChangeListener {
                 intent.setDataAndType(uri, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 startActivity(intent)
-
+            }
+            R.id.sales_menu_print -> {
+                val printExcelActivity = PrintActivity()
+                val dbHelper = DatabaseHandler(this)
+                val database = dbHelper.writableDatabase
+                val file = ExcelHandler().exportToExcel(this, database)
+                printExcelActivity.printExcelFile(this, file)
             }
         }
         return super.onOptionsItemSelected(item)

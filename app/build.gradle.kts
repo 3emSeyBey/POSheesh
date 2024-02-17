@@ -49,9 +49,14 @@ dependencies {
     implementation("com.google.android.gms:play-services-vision:20.1.3")
     implementation("org.apache.poi:poi:5.2.5")
     implementation("org.apache.poi:poi-ooxml:5.2.5")
+    implementation("com.itextpdf:itext7-core:8.0.3")
+    implementation("com.itextpdf:html2pdf:5.0.3")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
 
     implementation("androidx.sqlite:sqlite-ktx:2.4.0")
     implementation("com.squareup.picasso:picasso:2.71828")
