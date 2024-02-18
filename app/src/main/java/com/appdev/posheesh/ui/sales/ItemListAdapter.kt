@@ -60,11 +60,11 @@ class ItemListAdapter(private val context: Context, private val items: Array<Pro
         animationSet.addAnimation(alphaAnimation)
         animationSet.setAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationStart(animation: Animation) {
-
+                SalesFragment.addToCart(currentItem.code, 1)
             }
 
             override fun onAnimationEnd(animation: Animation) {
-                SalesFragment.addToCart(currentItem.code, 1)
+
             }
 
             override fun onAnimationRepeat(animation: Animation) {}

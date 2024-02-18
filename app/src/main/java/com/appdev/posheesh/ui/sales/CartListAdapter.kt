@@ -15,9 +15,13 @@ import java.io.File
 
 class CartListAdapter(
     context: Context,
-    private val cartItems: MutableList<Map<String, Any>>
+    private val cartItems: MutableList<Map<String, Any>>,
+    private val totalPriceListener: TotalPriceListener
 ) : ArrayAdapter<Map<String, Any>>(context, R.layout.list_item_cart, cartItems) {
 
+    interface TotalPriceListener {
+        fun onTotalPriceChanged(totalPrice: Double)
+    }
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         var itemView = convertView
         if (itemView == null) {
@@ -40,9 +44,21 @@ class CartListAdapter(
         currentCartItem["code"]?.let { getProductByCode(it as String).imageUri }
             ?.let { itemImageView.setImageURI(Uri.fromFile(File(it))) }
 
+        // Calculate total price and notify the listener
+        val totalPrice = calculateTotalPrice()
+        totalPriceListener.onTotalPriceChanged(totalPrice)
+
         return itemView
     }
 
+    private fun calculateTotalPrice(): Double {
+        var totalPrice = 0.0
+        for (cartItem in cartItems) {
+            val product = getProductByCode(cartItem["code"] as String)
+            totalPrice += product.sellingPrice * cartItem["quantity"] as Int
+        }
+        return totalPrice
+    }
     fun getProductByCode(itemCode: String): Products {
         // Initialize DatabaseHandler
         val dbHelper = DatabaseHandler(context)

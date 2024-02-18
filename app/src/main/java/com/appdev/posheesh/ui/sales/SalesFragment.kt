@@ -37,8 +37,20 @@ class SalesFragment : Fragment(), ItemListAdapter.ItemClickListener, AddItemFrag
         val cart: MutableList<Map<String, Any>> = mutableListOf() // Change to MutableList
 
         fun addToCart(itemCode: String, itemQuantity: Int) {
-            val map: Map<String, Any> = mapOf("code" to itemCode, "quantity" to itemQuantity)
-            cart.add(map)
+            // Check if the itemCode is already present in the cart
+            val existingItem = cart.find { it["code"] == itemCode }
+
+            if (existingItem != null) {
+                // If the item is already in the cart, update its quantity by adding 1
+                val currentQuantity = existingItem["quantity"] as Int
+                val updatedQuantity = currentQuantity + 1
+                val indexOfExistingItem = cart.indexOf(existingItem)
+                cart[indexOfExistingItem] = mapOf("code" to itemCode, "quantity" to updatedQuantity)
+            } else {
+                // If the item is not in the cart, add it to the cart
+                val newItem = mapOf("code" to itemCode, "quantity" to itemQuantity)
+                cart.add(newItem)
+            }
         }
     }
 
