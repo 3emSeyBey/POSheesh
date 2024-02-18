@@ -5,14 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_margin="20dp"
-    tools:context=".ui.sales.SalesFragment">
+    android:layout_margin="8dp"
+    tools:context=".ui.sales.SalesFragment"
+    android:background="@color/default_background">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_margin="20dp"
+        android:layout_margin="8dp"
         app:layout_constraintTop_toTopOf="parent">
 
     <!-- Cart Title -->
@@ -20,20 +21,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Shopping Cart"
-        android:textSize="24sp"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:padding="16dp"/>
+        android:padding="8dp"/>
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="300dp">
+            android:layout_width="match_parent"
+            android:layout_height="350dp">
     <!-- Cart Items List -->
     <ListView
         android:id="@+id/listViewCartItems"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -42,26 +43,61 @@
         app:layout_constraintVertical_bias="1.0" />
         </LinearLayout>
     <!-- Total Price -->
-    <TextView
-        android:id="@+id/textViewTotalPrice"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Total Price: $0.00"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:padding="16dp"
-        android:gravity="end"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#52C2A5A5">
+            <TextView
+                android:id="@+id/textViewTotalPrice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Total Price: $0.00"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:padding="12dp"
+                android:gravity="center_horizontal"/>
 
-    <!-- Checkout Button -->
-    <Button
-        android:id="@+id/buttonCheckout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Checkout"
-        android:textSize="18sp"
-        android:textColor="@android:color/white"
-        android:padding="16dp"
-        android:layout_margin="16dp"/>
+            <TextView
+                android:id="@+id/textViewPayWith"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pay with: "
+                android:layout_marginLeft="8dp"
+                android:textSize="18sp"
+                android:gravity="start"/>
+            <!-- Checkout Button -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Cash Button -->
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:background="@drawable/dialog_background"
+                    android:drawableLeft="@drawable/ic_cash"
+                    android:textColor="#FFFFFF"
+                    android:id="@+id/btn_paywithcash"
+                    android:drawablePadding="-15sp"
+                    android:text="Cash"></Button>
+
+                <!-- QR Button -->
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:background="@drawable/dialog_background"
+                    android:drawableLeft="@drawable/ic_qr"
+                    android:textColor="#FFFFFF"
+                    android:id="@+id/btn_paywithqr"
+                    android:text="QR"></Button>
+            </LinearLayout>
+        </LinearLayout>
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

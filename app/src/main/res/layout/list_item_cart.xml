@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="16dp">
+    android:padding="8dp"
+    android:background="@color/default_background">
 
     <!-- Left Section: Image and Name -->
     <LinearLayout
@@ -15,13 +16,19 @@
         <!-- Image View -->
         <ImageView
             android:id="@+id/itemImageView"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/hot_choco_1"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/don_darko"
             android:scaleType="centerCrop"
             android:contentDescription="Item Image"/>
+    </LinearLayout>
 
-        <!-- Item Name and Price x Quantity -->
+    <!-- Right Section: Plus and Minus Buttons, Quantity Text, Delete Button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -34,67 +41,113 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Item Name"
-                android:textSize="18sp"
+                android:textSize="15sp"
                 android:textStyle="bold"/>
 
-            <!-- Price x Quantity -->
-            <TextView
-                android:id="@+id/priceQuantityTextView"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Price x Quantity"
-                android:textSize="16sp"/>
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <!-- Minus Button -->
+                <ImageView
+                    android:id="@+id/minusButton"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_minus"
+                    android:elevation="4dp"
+                    android:contentDescription="Minus"/>
+
+                <!-- Quantity TextView -->
+                <TextView
+                    android:id="@+id/quantityTextView"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content"
+                    android:text="1"
+                    android:gravity="center_horizontal"
+                    android:elevation="8dp"
+                    android:textSize="14sp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/search_box_background"/>
+
+                <!-- Plus Button -->
+                <ImageView
+                    android:id="@+id/plusButton"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:elevation="4dp"
+                    android:src="@drawable/ic_plus"
+                    android:contentDescription="Plus"/>
+            </LinearLayout>
+            <TextView
+                android:id="@+id/selectOptionsTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Select Options"
+                android:textSize="14sp"/>
         </LinearLayout>
-    </LinearLayout>
-
-    <!-- Right Section: Plus and Minus Buttons, Quantity Text, Delete Button -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="end">
-
-        <!-- Plus and Minus Buttons with Quantity -->
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <GridLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:columnCount="2"
+            android:rowCount="2">
 
-            <!-- Minus Button -->
-            <ImageView
-                android:id="@+id/minusButton"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_minus"
-                android:contentDescription="Minus"/>
+            <!-- Button 1: W/O COFFEE -->
+            <Button
+                android:id="@+id/wocoffeButton"
+                android:layout_width="0dp"
+                android:layout_height="32dp"
+                android:layout_columnWeight="1"
+                android:text="W/O COFFEE"
+                android:textSize="11sp"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"                android:elevation="4dp"
+                android:contentDescription="Delete"/>
 
-            <!-- Quantity TextView -->
-            <TextView
-                android:id="@+id/quantityTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="1"
-                android:textSize="16sp"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"/>
+            <!-- Button 2: Less Coffee -->
+            <Button
+                android:id="@+id/lessCoffeeButton"
+                android:layout_width="0dp"
+                android:layout_height="32dp"
+                android:layout_columnWeight="1"
+                android:text="Less Coffee"
+                android:textSize="11sp"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:elevation="4dp"
+                android:contentDescription="Less Coffee"/>
 
-            <!-- Plus Button -->
-            <ImageView
-                android:id="@+id/plusButton"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_plus"
-                android:contentDescription="Plus"/>
-        </LinearLayout>
+            <!-- Button 3: Less Milk -->
+            <Button
+                android:id="@+id/lessMilkButton"
+                android:layout_width="0dp"
+                android:layout_height="32dp"
+                android:layout_columnWeight="1"
+                android:text="Less Milk"
+                android:textSize="11sp"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:layout_marginTop="-4dp"
+                android:elevation="4dp"
+                android:contentDescription="Less Milk"/>
 
-        <!-- Delete Button -->
-        <ImageView
-            android:id="@+id/deleteButton"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_img_error"
-            android:contentDescription="Delete"/>
+            <!-- Button 4: Less Ice -->
+            <Button
+                android:id="@+id/lessIceButton"
+                android:layout_width="0dp"
+                android:layout_height="32dp"
+                android:layout_columnWeight="1"
+                android:text="Less Ice"
+                android:textSize="11sp"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:layout_marginTop="-4dp"
+                android:elevation="4dp"
+                android:contentDescription="Less Ice"/>
+
+        </GridLayout>
     </LinearLayout>
-
-
 </LinearLayout>
