@@ -34,4 +34,10 @@
         android:name="com.appdev.posheesh.ui.about.AboutFragment"
         android:label="@string/menu_about"
         tools:layout="@layout/fragment_about" />
+
+    <fragment
+        android:id="@+id/nav_logout"
+        android:name="com.appdev.posheesh.ui.LogoutFragment"
+        android:label="Logout"
+        tools:layout="@layout/fragment_logout" />
 </navigation>

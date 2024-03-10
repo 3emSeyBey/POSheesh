@@ -3,7 +3,6 @@ import android.app.Dialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -11,7 +10,6 @@ import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.appdev.posheesh.Classes.Products
 import com.appdev.posheesh.R
-import com.appdev.posheesh.ui.sales.SalesFragment
 
 class ItemDialogFragment : DialogFragment() {
 

@@ -30,7 +30,7 @@ class CartListAdapter(
         }
 
         // Get the current cart item
-        val currentCartItem = cartItems[position]
+        val currentCartItem = cartItems[position].toMutableMap()
 
         // Set data to views
         val itemNameTextView = itemView!!.findViewById<TextView>(R.id.itemNameTextView)
@@ -48,7 +48,28 @@ class CartListAdapter(
         val totalPrice = calculateTotalPrice()
         totalPriceListener.onTotalPriceChanged(totalPrice)
 
+        val minusButton = itemView.findViewById<ImageView>(R.id.minusButton)
+        val plusButton = itemView.findViewById<ImageView>(R.id.plusButton)
+
+        // Click listener for minus button
+        minusButton.setOnClickListener {
+            SalesFragment.removeToCart(currentCartItem["code"] as String)
+            notifyDataSetChanged() // Update the ListView
+            notifyTotalPriceChanged() // Notify the total price change
+        }
+
+        // Click listener for plus button
+        plusButton.setOnClickListener {
+            SalesFragment.addToCart(currentCartItem["code"] as String, 1)
+            notifyDataSetChanged() // Update the ListView
+            notifyTotalPriceChanged() // Notify the total price change
+        }
+
         return itemView
+    }
+    private fun notifyTotalPriceChanged() {
+        val totalPrice = calculateTotalPrice()
+        totalPriceListener.onTotalPriceChanged(totalPrice)
     }
 
     private fun calculateTotalPrice(): Double {

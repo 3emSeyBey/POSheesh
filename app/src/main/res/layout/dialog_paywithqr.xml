@@ -1,0 +1,55 @@
+<!-- dialog_payment_method.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/search_box_background">
+
+    <!-- Your dialog content here -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Please Scan QR Code to Pay"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="8dp"/>
+    <ImageView
+        android:id="@+id/imageViewQRCode"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:src="@drawable/logo_ic"
+        android:contentDescription="GCash"
+        android:background="@drawable/itemlist_background"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/btnPayWithGCash"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_margin="8dp"
+            android:layout_height="wrap_content"
+            android:text="Pay with GCash"/>
+        <Button
+            android:id="@+id/btnPayWithMaya"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="Pay with Maya"/>
+        <ImageButton
+            android:id="@+id/btn_set"
+            android:layout_weight="0.3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="Gcash"
+            android:src="@drawable/ic_settings"
+            />
+    </LinearLayout>
+</LinearLayout>

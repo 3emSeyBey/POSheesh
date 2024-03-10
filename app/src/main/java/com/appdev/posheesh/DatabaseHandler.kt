@@ -1,5 +1,6 @@
 package com.appdev.posheesh
 
+import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
@@ -48,6 +49,29 @@ class DatabaseHandler(private val context: Context) :
                     ")"
         )
 
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS users (" +
+                    "userid INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "employeeId TEXT," +
+                    "usercode TEXT NOT NULL," +
+                    "role TEXT NOT NULL," +
+                    "isActive INTEGER DEFAULT 1," +
+                    "creationDate TEXT" +
+                    ")"
+        )
+
+        // Insert a record for the first user with admin role
+        val firstUserCode = "admin"
+        val currentTime = System.currentTimeMillis()
+        val contentValues = ContentValues().apply {
+            put("usercode", firstUserCode)
+            put("employeeId", "000001")
+            put("role", "admin")
+            put("creationDate", currentTime.toString())
+        }
+
+        db.insert("users", null, contentValues)
+
         // Insert product entries
         val products = mutableListOf<Products>()
 
@@ -94,8 +118,54 @@ class DatabaseHandler(private val context: Context) :
             db.insert("products", null, contentValues)
         }
     }
+    fun addUser(role: String, employeeId: String): String? {
+        val userCode = generateUniqueUserCode()
+        return if (userCode != null) {
+            val currentTime = System.currentTimeMillis()
+            val contentValues = ContentValues().apply {
+                put("usercode", userCode)
+                put("role", role)
+                put("employeeId", employeeId)
+                put("creationDate", currentTime.toString())
+            }
 
-    fun saveImageToInternalStorage(resourceId: Int): Uri? {
+            val db = writableDatabase
+            val success = db.insert("users", null, contentValues) != -1L
+            db.close()
+
+            if (success) userCode else null
+        } else {
+            null // Handle case where unique user code could not be generated
+        }
+    }
+
+    @SuppressLint("Range")
+    private fun generateUniqueUserCode(): String? {
+        val db = readableDatabase
+        val userCodes = mutableListOf<String>()
+
+        // Query all existing user codes
+        val cursor = db.rawQuery("SELECT usercode FROM users", null)
+        while (cursor.moveToNext()) {
+            val userCode = cursor.getString(cursor.getColumnIndex("usercode"))
+            userCodes.add(userCode)
+        }
+        cursor.close()
+        db.close()
+
+        // Generate a random 6-digit number string and check if it's unique
+        var randomUserCode: String
+        do {
+            randomUserCode = generateUserCode()
+        } while (userCodes.contains(randomUserCode))
+
+        return randomUserCode
+    }
+    private fun generateUserCode(): String {
+        // Generate a random 6-digit number string
+        return (100000..999999).random().toString()
+    }
+    private fun saveImageToInternalStorage(resourceId: Int): Uri? {
         val bitmap = BitmapFactory.decodeResource(context.resources, resourceId)
         val imagesDir = context.filesDir
         val imageFile = File(imagesDir, "image_${System.currentTimeMillis()}.jpg")
@@ -115,7 +185,6 @@ class DatabaseHandler(private val context: Context) :
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         // Handle database upgrades if necessary
     }
-
     fun getAllCategory(): MutableList<Category> {
         val categoryList = mutableListOf<Category>()
         val db = readableDatabase
@@ -204,7 +273,7 @@ class DatabaseHandler(private val context: Context) :
     fun getProductsByNameSearch(searchString: String, categoryId: Int): MutableList<Products> {
         val productList = mutableListOf<Products>()
         val db = readableDatabase
-        var cursor: Cursor? = null
+        var cursor: Cursor?
 
         if (categoryId == 0) {
             cursor = db.rawQuery("SELECT * FROM products WHERE name LIKE ?", arrayOf("%$searchString%"))
@@ -269,6 +338,7 @@ class DatabaseHandler(private val context: Context) :
                 val code = it.getString(codeColumnIndex)
 
                 product = Products(name, description, categoryId, sellingPrice, imageUri, code)
+
             }
         }
 
@@ -277,7 +347,7 @@ class DatabaseHandler(private val context: Context) :
 
         return product
     }
-    fun getFilePathFromUri(context: Context, uri: Uri): String? {
+    private fun getFilePathFromUri(context: Context, uri: Uri): String? {
         val filePath: String?
         val cursor = context.contentResolver.query(uri, null, null, null, null)
         if (cursor != null) {
@@ -290,14 +360,6 @@ class DatabaseHandler(private val context: Context) :
         }
         return filePath
     }
-    private fun getUriFromResourceId(resourceId: Int): Uri {
-        val uri: Uri = Uri.parse(
-            ContentResolver.SCHEME_ANDROID_RESOURCE +
-                "://" + context.resources.getResourcePackageName(resourceId)
-                + '/' + context.resources.getResourceTypeName(resourceId)
-                + '/' + context.resources.getResourceEntryName(resourceId))
-        return uri
-    }
     fun addProduct(product: Products) {
         val sql = "INSERT INTO products (name, description, category_id, selling_price, image_url, code) VALUES (?, ?, ?, ?, ?, ?)"
 
@@ -305,7 +367,83 @@ class DatabaseHandler(private val context: Context) :
         database.execSQL(sql, arrayOf(product.name, product.description, product.categoryId, product.sellingPrice, product.imageUri, product.code))
         database.close()
     }
+    @SuppressLint("Range")
+    fun generateDatabaseDescription(): String {
+        val databaseDescription = StringBuilder()
 
+        // Get readable database
+        val db = readableDatabase
+
+        // Get all table names
+        val cursor: Cursor = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null)
+
+        // Iterate through table names
+        while (cursor.moveToNext()) {
+            val tableName = cursor.getString(0)
+            val tableDescription = StringBuilder()
+            tableDescription.append("On table $tableName with fields ")
+
+            // Get column names for the current table
+            val columnsCursor: Cursor = db.rawQuery("PRAGMA table_info($tableName)", null)
+
+            val fieldList = mutableListOf<String>()
+            // Iterate through column names
+            while (columnsCursor.moveToNext()) {
+                val columnName = columnsCursor.getString(columnsCursor.getColumnIndex("name"))
+                fieldList.add(columnName)
+            }
+            columnsCursor.close()
+
+            tableDescription.append(fieldList.joinToString(", "))
+
+            // Get data from the current table
+            val dataCursor: Cursor = db.rawQuery("SELECT * FROM $tableName", null)
+
+            // Iterate through rows
+            var rowNumber = 1
+            while (dataCursor.moveToNext()) {
+                tableDescription.append(" $rowNumber${getOrdinalSuffix(rowNumber)} entry has ")
+                for (i in 0 until dataCursor.columnCount) {
+                    val fieldName = dataCursor.getColumnName(i)
+                    val fieldValue = dataCursor.getString(i)
+                    tableDescription.append("$fieldName value of $fieldValue")
+                    if (i < dataCursor.columnCount - 1) {
+                        tableDescription.append(", ")
+                    }
+                }
+                tableDescription.append(". ")
+                rowNumber++
+            }
+            dataCursor.close()
+
+            databaseDescription.append(tableDescription.toString())
+        }
+        cursor.close()
+        db.close()
+
+        return databaseDescription.toString()
+    }
+    private fun getOrdinalSuffix(number: Int): String {
+        return when (number % 100) {
+            11, 12, 13 -> "th"
+            else -> when (number % 10) {
+                1 -> "st"
+                2 -> "nd"
+                3 -> "rd"
+                else -> "th"
+            }
+        }
+    }
+    fun isUserCodeExists(userCode: String): Boolean {
+        val db = readableDatabase
+        val selection = "usercode = ?"
+        val selectionArgs = arrayOf(userCode)
+        val cursor = db.query("users", null, selection, selectionArgs, null, null, null)
+        val count = cursor.count
+        cursor.close()
+        db.close()
+        return count > 0
+    }
     companion object {
         const val DATABASE_VERSION = 1
         const val DATABASE_NAME = "posheesh.db"

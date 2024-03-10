@@ -13,9 +13,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.fragment.app.DialogFragment
+import com.appdev.posheesh.BarcodeScan
 import com.appdev.posheesh.Classes.Products
 import com.appdev.posheesh.DatabaseHandler
 import com.appdev.posheesh.R
@@ -33,10 +35,12 @@ class AddItemFragment : DialogFragment() {
         fun onItemAdded()
     }
     private var listener: OnItemAddedListener? = null
+    private lateinit var barcodeEditText: EditText
     private lateinit var dbHelper: DatabaseHandler
     private var selectedImageUri: String? = null // URI to store the selected image
     private var capturedPhotoUri: Uri? = null // URI to store the captured image
     private var currentPhotoPath: String? = null
+
 
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -51,9 +55,10 @@ class AddItemFragment : DialogFragment() {
         val descriptionEditText: EditText = view.findViewById(R.id.editTextDescription)
         val sellingPriceEditText: EditText = view.findViewById(R.id.editTextSellingPrice)
         val addItemButton: Button = view.findViewById(R.id.buttonAddItem)
-        val barcodeEditText: EditText = view.findViewById(R.id.editTextBarcode)
+        barcodeEditText = view.findViewById(R.id.editTextBarcode)
         val uploadImageButton: Button = view.findViewById(R.id.buttonFilePicker)
         val captureImageButton: Button = view.findViewById(R.id.buttonCameraPicker)
+        val scannerIcon: ImageView = view.findViewById(R.id.imageViewScannerIcon)
 
         // Add item to database when the "Add Item" button is clicked
         addItemButton.setOnClickListener {
@@ -88,6 +93,7 @@ class AddItemFragment : DialogFragment() {
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             startActivityForResult(intent, PICK_IMAGE_REQUEST_CODE)
         }
+
         captureImageButton.setOnClickListener {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             val photoFile: File? = try {
@@ -105,6 +111,11 @@ class AddItemFragment : DialogFragment() {
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
             }
             startActivityForResult(intent, CAPTURE_IMAGE_REQUEST_CODE)
+        }
+
+        scannerIcon.setOnClickListener {
+            val intent = Intent(requireContext(), BarcodeScan::class.java)
+            startActivityForResult(intent, QRCODESCANNED_REQUEST_CODE)
         }
         builder.setView(view)
         return builder.create()
@@ -155,7 +166,18 @@ class AddItemFragment : DialogFragment() {
                 // Update selectedImageUri with the file path
                 selectedImageUri = getFilePathFromUri(filePath!!)
             }
+        } else if (requestCode == QRCODESCANNED_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            val scannedValue = data?.getStringExtra("scannedValue")
+            // Check if the scannedValue is not null and barcodeEditText is initialized
+            if (scannedValue != null && barcodeEditText != null) {
+                // Set the scanned value to the barcodeEditText
+                barcodeEditText.setText(scannedValue)
+            } else {
+                // Handle case where scanned value is null or barcodeEditText is not initialized
+                Toast.makeText(requireContext(), "Failed to get scanned value", Toast.LENGTH_SHORT).show()
+            }
         }
+
 
     }
     fun getFilePathFromUri(uri: Uri): String? {
@@ -183,5 +205,6 @@ class AddItemFragment : DialogFragment() {
         // Define request codes for image selection and capture
         private const val PICK_IMAGE_REQUEST_CODE = 1
         private const val CAPTURE_IMAGE_REQUEST_CODE = 2
+        private const val QRCODESCANNED_REQUEST_CODE = 3
     }
 }

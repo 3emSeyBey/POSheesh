@@ -1,7 +1,6 @@
 import android.content.Context
 import android.os.Bundle
 import android.os.CancellationSignal
-import com.appdev.posheesh.R
 import android.os.ParcelFileDescriptor
 import android.print.PageRange
 import android.print.PrintAttributes
@@ -9,6 +8,7 @@ import android.print.PrintDocumentAdapter
 import android.print.PrintDocumentInfo
 import android.print.PrintManager
 import androidx.appcompat.app.AppCompatActivity
+import com.appdev.posheesh.R
 import com.itextpdf.kernel.pdf.PdfWriter
 import com.itextpdf.layout.Document
 import com.itextpdf.layout.element.Table

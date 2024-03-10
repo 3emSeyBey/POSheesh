@@ -18,10 +18,12 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import com.appdev.openaitest.ui.AIChatBoxBalloon
 import com.appdev.posheesh.Classes.FragmentChangeListener
 import com.appdev.posheesh.databinding.ActivityMainBinding
+import com.appdev.posheesh.ui.LoginActivity
 import com.appdev.posheesh.ui.sales.ExcelHandler
-import com.squareup.picasso.BuildConfig
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 import java.io.IOException
 
@@ -30,7 +32,10 @@ class MainActivity : AppCompatActivity(), FragmentChangeListener {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    private lateinit var fab: FloatingActionButton
+    private lateinit var chatBoxBalloon: AIChatBoxBalloon
     private var currentMenu: Menu? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -38,14 +43,18 @@ class MainActivity : AppCompatActivity(), FragmentChangeListener {
         setContentView(binding.root)
 
         setSupportActionBar(binding.appBarMain.toolbar)
-
+        fab = binding.appBarMain.fab
+        chatBoxBalloon = AIChatBoxBalloon(this)
+        fab.setOnClickListener { view ->
+                chatBoxBalloon.show(view)
+        }
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(setOf(
-                R.id.nav_dashboard, R.id.nav_sales, R.id.nav_inventory, R.id.nav_reports, R.id.nav_about), drawerLayout)
+                R.id.nav_dashboard, R.id.nav_sales, R.id.nav_inventory, R.id.nav_reports, R.id.nav_about, R.id.nav_logout), drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
     }

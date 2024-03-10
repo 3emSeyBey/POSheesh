@@ -1,10 +1,13 @@
 package com.appdev.posheesh.ui.sales
 
-import com.appdev.posheesh.ui.sales.AddItemFragment
 import CartFragment
+import ItemDialogFragment
 import ItemListAdapter
 import android.app.Activity.RESULT_OK
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.speech.RecognizerIntent
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -12,22 +15,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import android.content.Context
-import android.content.Intent
-import android.speech.RecognizerIntent
-import android.widget.ImageView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.appdev.posheesh.BarcodeScan
 import com.appdev.posheesh.Classes.FragmentChangeListener
 import com.appdev.posheesh.Classes.Products
+import com.appdev.posheesh.DatabaseHandler
 import com.appdev.posheesh.R
 import com.appdev.posheesh.databinding.FragmentSalesBinding
-import com.appdev.posheesh.DatabaseHandler
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.Locale
 import java.util.Objects
@@ -52,6 +52,20 @@ class SalesFragment : Fragment(), ItemListAdapter.ItemClickListener, AddItemFrag
                 cart.add(newItem)
             }
         }
+        fun removeToCart(itemCode: String) {
+            // Check if the itemCode is already present in the cart
+            val existingItem = cart.find { it["code"] == itemCode }
+                // If the item is already in the cart, update its quantity by subtracting 1
+                val currentQuantity = existingItem?.get("quantity") as Int
+                val updatedQuantity = currentQuantity - 1
+                if(updatedQuantity == 0){
+                    cart.remove(existingItem)
+                }else {
+                    val indexOfExistingItem = cart.indexOf(existingItem)
+                    cart[indexOfExistingItem] =
+                        mapOf("code" to itemCode, "quantity" to updatedQuantity)
+                }
+        }
     }
 
     private var _binding: FragmentSalesBinding? = null
@@ -65,6 +79,8 @@ class SalesFragment : Fragment(), ItemListAdapter.ItemClickListener, AddItemFrag
     private var spinnerIndex: Int = 0
     private var fragmentChangeListener: FragmentChangeListener? = null
     private val REQUEST_CODE_SPEECH_INPUT = 1
+    private val requestCodeBarcodeScan = 101 // define a request code
+
 
 
     override fun onCreateView(
@@ -98,7 +114,7 @@ class SalesFragment : Fragment(), ItemListAdapter.ItemClickListener, AddItemFrag
         val scanBarcodeImg: ImageView = view.findViewById(R.id.cameraIcon)
         scanBarcodeImg.setOnClickListener {
             val intent = Intent(requireActivity(), BarcodeScan::class.java)
-            startActivity(intent)
+            startActivityForResult(intent, requestCodeBarcodeScan)
         }
 
         micImg = view.findViewById(R.id.microphoneIcon)
@@ -166,6 +182,14 @@ class SalesFragment : Fragment(), ItemListAdapter.ItemClickListener, AddItemFrag
                 // to our output text view\
                 etSearch.setText(
                     Objects.requireNonNull(res)[0]
+                )
+            }
+        } else if (requestCode == requestCodeBarcodeScan) {
+            if (resultCode == RESULT_OK && data != null) {
+                val scannedValue = data.getStringExtra("scannedValue")
+                etSearch.setText(
+                    scannedValue?.let { dbHelper.getProductByCode(it)?.name }
+                        ?: "No product found"
                 )
             }
         }

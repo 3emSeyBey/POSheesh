@@ -2,11 +2,12 @@ package com.appdev.posheesh
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.SurfaceHolder
-import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Toast
@@ -98,18 +99,13 @@ class BarcodeScan : AppCompatActivity() {
                 val barcodes = detections.detectedItems
                 if (barcodes.size() == 1) {
                     scannedValue = barcodes.valueAt(0).rawValue
-
-
-                    //Don't forget to add this line printing value or finishing activity must run on main thread
                     runOnUiThread {
+                        val intent = Intent()
+                        intent.putExtra("scannedValue", scannedValue)
+                        setResult(Activity.RESULT_OK, intent)
                         cameraSource.stop()
-                        Toast.makeText(this@BarcodeScan, "value- $scannedValue", Toast.LENGTH_SHORT).show()
                         finish()
                     }
-                }else
-                {
-                    Toast.makeText(this@BarcodeScan, "value- else", Toast.LENGTH_SHORT).show()
-
                 }
             }
         })
