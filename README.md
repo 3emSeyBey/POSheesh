@@ -1,2 +1,2 @@
 # AppDev
- POSheesh Application for AppDev Projecy
+ POSheesh Application for AppDev Project

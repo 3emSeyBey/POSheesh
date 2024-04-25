@@ -1,4 +1,6 @@
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +12,7 @@ import android.view.animation.TranslateAnimation
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.appdev.posheesh.Classes.Products
 import com.appdev.posheesh.R
@@ -35,41 +38,56 @@ class ItemListAdapter(private val context: Context, private val items: Array<Pro
         // Set item data to views
         holder.bind(currentItem)
         holder.itemView.setOnClickListener {
-            flyToCartAnimation(holder.itemView, holder, currentItem)
+            highlightContainer(holder.itemView, holder, currentItem)
         }
     }
 
-    private fun flyToCartAnimation(view: View, holder: ViewHolder, currentItem: Products) {
-        val itemPosition = IntArray(2)
-        holder.itemView.getLocationOnScreen(itemPosition)
-        val screenWidth = context.resources.displayMetrics.widthPixels/context.resources.displayMetrics.density
-        val screenHeight = context.resources.displayMetrics.heightPixels/context.resources.displayMetrics.density
-        val deltaX = (screenWidth)-(itemPosition[0]-view.width)
-        val deltaY = (screenHeight*2.0f)-(itemPosition[1])
-        Toast.makeText(context, currentItem.name+" added to cart", Toast.LENGTH_SHORT).show()
-        val translateAnimation = TranslateAnimation(0f, deltaX, 0f, deltaY)
-        translateAnimation.duration = 500
-        val scaleAnimation = ScaleAnimation(1.0f, 0.1f, 1.0f, 0.1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-        scaleAnimation.duration = 1000
-        val alphaAnimation = AlphaAnimation(1.0f, 0.0f)
-        alphaAnimation.duration = 300
+    private fun highlightContainer(view: View, holder: ViewHolder, currentItem: Products) {
+        val highlightScale = 1.1f // Increase the scale slightly for highlighting effect
+
+        // Highlighting animation
+        val scaleAnimation = ScaleAnimation(1.0f, highlightScale, 1.0f, highlightScale,
+            Animation.RELATIVE_TO_SELF, 0.5f,
+            Animation.RELATIVE_TO_SELF, 0.5f)
+        scaleAnimation.duration = 200 // Adjust duration as needed
+
+        // Set up animation set
         val animationSet = AnimationSet(true)
-        animationSet.addAnimation(translateAnimation)
         animationSet.addAnimation(scaleAnimation)
-        animationSet.addAnimation(alphaAnimation)
+
         animationSet.setAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationStart(animation: Animation) {
+                // You can add any action needed when animation starts
+                Toast.makeText(context, currentItem.name+" added to cart", Toast.LENGTH_SHORT).show()
+                val borderColor = Color.parseColor("#DAA06D")
+                val backgroundColor = Color.parseColor("#E1C16E")
+
+                // Create a GradientDrawable for the background
+                val backgroundDrawable = GradientDrawable()
+                backgroundDrawable.shape = GradientDrawable.RECTANGLE
+                backgroundDrawable.cornerRadius = 50f // Adjust the corner radius as needed
+                backgroundDrawable.setColor(backgroundColor)
+
+                // Set the border color and width
+                backgroundDrawable.setStroke(2, borderColor) // Adjust the width as needed
+
+                // Set the background drawable to the view
+                view.background = backgroundDrawable
+
                 SalesFragment.addToCart(currentItem.code, 1)
             }
 
             override fun onAnimationEnd(animation: Animation) {
-
+                // Perform any action needed after the animation ends
             }
 
             override fun onAnimationRepeat(animation: Animation) {}
         })
 
+        // Start the animation on the provided view
         view.startAnimation(animationSet)
+
+        // If you want to trigger any other action when the container is clicked, add it here
     }
 
     override fun getItemCount(): Int {

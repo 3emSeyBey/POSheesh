@@ -45,6 +45,7 @@ class DatabaseHandler(private val context: Context) :
                     "buying_price REAL DEFAULT 0.0," +
                     "image_url TEXT," +
                     "code TEXT," +
+                    "required_supplies TEXT," +
                     "FOREIGN KEY (category_id) REFERENCES categories(id)" +
                     ")"
         )
@@ -55,6 +56,20 @@ class DatabaseHandler(private val context: Context) :
                     "employeeId TEXT," +
                     "usercode TEXT NOT NULL," +
                     "role TEXT NOT NULL," +
+                    "isActive INTEGER DEFAULT 1," +
+                    "creationDate TEXT" +
+                    ")"
+        )
+
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS supplies (" +
+                    "supplyID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "supplyName TEXT," +
+                    "supplyDescription TEXT NOT NULL," +
+                    "img_url TEXT NOT NULL," +
+                    "supplyQuantity INTEGER DEFAULT 0," +
+                    "supplyUnit TEXT NOT NULL," +
+                    "crticalLevel INTEGER DEFAULT 0," +
                     "isActive INTEGER DEFAULT 1," +
                     "creationDate TEXT" +
                     ")"
@@ -117,6 +132,15 @@ class DatabaseHandler(private val context: Context) :
 
             db.insert("products", null, contentValues)
         }
+
+        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('plastic cups', 'Disposable plastic cups for serving beverages', 'https://example.com/plastic_cups_image.jpg', 500, 'per piece', 50, 1, CURRENT_TIMESTAMP);")
+        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('straw', 'Disposable straws for drinking', 'https://example.com/straw_image.jpg', 500, 'per piece', 50, 1, CURRENT_TIMESTAMP);")
+        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('chocolate syrup', 'Chocolate-flavored syrup for flavoring beverages', 'https://example.com/chocolate_syrup_image.jpg', 5000, 'ml', 500, 1, CURRENT_TIMESTAMP);")
+        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('strawberry jam', 'Strawberry-flavored jam for flavoring beverages', 'https://example.com/strawberry_jam_image.jpg', 5000, 'ml', 500, 1, CURRENT_TIMESTAMP);")
+        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('matcha syrup', 'Matcha-flavored syrup for flavoring beverages', 'https://example.com/matcha_syrup_image.jpg', 5000, 'ml', 500, 1, CURRENT_TIMESTAMP);")
+        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('ice', 'Ice cubes for chilling beverages', 'https://example.com/ice_image.jpg', 10000, 'ml', 1000, 1, CURRENT_TIMESTAMP);")
+        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('coffee', 'Coffee concentrate for making coffee-based beverages', 'https://example.com/coffee_image.jpg', 5000, 'ml', 500, 1, CURRENT_TIMESTAMP);")
+        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('milk', 'Milk for making milk-based beverages', 'https://example.com/milk_image.jpg', 10000, 'ml', 1000, 1, CURRENT_TIMESTAMP);")
     }
     fun addUser(role: String, employeeId: String): String? {
         val userCode = generateUniqueUserCode()
