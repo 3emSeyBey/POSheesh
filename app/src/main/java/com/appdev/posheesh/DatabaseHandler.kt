@@ -14,6 +14,7 @@ import android.provider.MediaStore
 import android.util.Log
 import com.appdev.posheesh.Classes.Category
 import com.appdev.posheesh.Classes.Products
+import com.appdev.posheesh.Classes.Supplies
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -65,6 +66,20 @@ class DatabaseHandler(private val context: Context) :
             "CREATE TABLE IF NOT EXISTS supplies (" +
                     "supplyID INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "supplyName TEXT," +
+                    "supplyDescription TEXT NOT NULL," +
+                    "img_url TEXT NOT NULL," +
+                    "supplyQuantity INTEGER DEFAULT 0," +
+                    "supplyUnit TEXT NOT NULL," +
+                    "crticalLevel INTEGER DEFAULT 0," +
+                    "isActive INTEGER DEFAULT 1," +
+                    "creationDate TEXT" +
+                    ")"
+        )
+
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS sales (" +
+                    "salesID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "totalAmount TEXT," +
                     "supplyDescription TEXT NOT NULL," +
                     "img_url TEXT NOT NULL," +
                     "supplyQuantity INTEGER DEFAULT 0," +
@@ -133,14 +148,14 @@ class DatabaseHandler(private val context: Context) :
             db.insert("products", null, contentValues)
         }
 
-        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('plastic cups', 'Disposable plastic cups for serving beverages', 'https://example.com/plastic_cups_image.jpg', 500, 'per piece', 50, 1, CURRENT_TIMESTAMP);")
-        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('straw', 'Disposable straws for drinking', 'https://example.com/straw_image.jpg', 500, 'per piece', 50, 1, CURRENT_TIMESTAMP);")
-        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('chocolate syrup', 'Chocolate-flavored syrup for flavoring beverages', 'https://example.com/chocolate_syrup_image.jpg', 5000, 'ml', 500, 1, CURRENT_TIMESTAMP);")
-        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('strawberry jam', 'Strawberry-flavored jam for flavoring beverages', 'https://example.com/strawberry_jam_image.jpg', 5000, 'ml', 500, 1, CURRENT_TIMESTAMP);")
-        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('matcha syrup', 'Matcha-flavored syrup for flavoring beverages', 'https://example.com/matcha_syrup_image.jpg', 5000, 'ml', 500, 1, CURRENT_TIMESTAMP);")
-        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('ice', 'Ice cubes for chilling beverages', 'https://example.com/ice_image.jpg', 10000, 'ml', 1000, 1, CURRENT_TIMESTAMP);")
-        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('coffee', 'Coffee concentrate for making coffee-based beverages', 'https://example.com/coffee_image.jpg', 5000, 'ml', 500, 1, CURRENT_TIMESTAMP);")
-        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('milk', 'Milk for making milk-based beverages', 'https://example.com/milk_image.jpg', 10000, 'ml', 1000, 1, CURRENT_TIMESTAMP);")
+        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('Plastic Cups', 'Disposable plastic cups for serving beverages', 'https://example.com/plastic_cups_image.jpg', 500, 'piece', 50, 1, CURRENT_TIMESTAMP);")
+        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('Straw', 'Disposable straws for drinking', 'https://example.com/straw_image.jpg', 500, 'piece', 50, 1, CURRENT_TIMESTAMP);")
+        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('Chocolate Syrup', 'Chocolate-flavored syrup for flavoring beverages', 'https://example.com/chocolate_syrup_image.jpg', 5000, 'ml', 500, 1, CURRENT_TIMESTAMP);")
+        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('Strawberry Jam', 'Strawberry-flavored jam for flavoring beverages', 'https://example.com/strawberry_jam_image.jpg', 5000, 'ml', 500, 1, CURRENT_TIMESTAMP);")
+        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('Matcha Syrup', 'Matcha-flavored syrup for flavoring beverages', 'https://example.com/matcha_syrup_image.jpg', 5000, 'ml', 500, 1, CURRENT_TIMESTAMP);")
+        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('Ice', 'Ice cubes for chilling beverages', 'https://example.com/ice_image.jpg', 10000, 'ml', 1000, 1, CURRENT_TIMESTAMP);")
+        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('Coffee', 'Coffee concentrate for making coffee-based beverages', 'https://example.com/coffee_image.jpg', 5000, 'ml', 500, 1, CURRENT_TIMESTAMP);")
+        db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('Milk', 'Milk for making milk-based beverages', 'https://example.com/milk_image.jpg', 10000, 'ml', 1000, 1, CURRENT_TIMESTAMP);")
     }
     fun addUser(role: String, employeeId: String): String? {
         val userCode = generateUniqueUserCode()
@@ -335,6 +350,43 @@ class DatabaseHandler(private val context: Context) :
         db.close()
         return productList
     }
+
+    fun getSuppliesByNameSearch(searchString: String): MutableList<Supplies> {
+        val supplyList = mutableListOf<Supplies>()
+        val db = readableDatabase
+        var cursor: Cursor?
+        cursor = db.rawQuery("SELECT * FROM supplies WHERE supplyName LIKE ?", arrayOf("%$searchString%"))
+
+        cursor?.use {
+            val supplyIDColumnIndex = it.getColumnIndex("supplyID")
+            val supplyNameColumnIndex = it.getColumnIndex("supplyName")
+            val supplyDescriptionColumnIndex = it.getColumnIndex("supplyDescription")
+            val img_urlColumnIndex = it.getColumnIndex("img_url")
+            val supplyQuantityColumnIndex = it.getColumnIndex("supplyQuantity")
+            val supplyUnitColumnIndex = it.getColumnIndex("supplyUnit")
+            val crticalLevelColumnIndex = it.getColumnIndex("crticalLevel")
+            val isActiveColumnIndex = it.getColumnIndex("isActive")
+            val creationDateColumnIndex = it.getColumnIndex("creationDate")
+
+            while (it.moveToNext()) {
+                val supplyID = it.getInt(supplyIDColumnIndex)
+                val supplyName = it.getString(supplyNameColumnIndex)
+                val supplyDescription = it.getString(supplyDescriptionColumnIndex)
+                val img_url = it.getString(img_urlColumnIndex) // Assuming 1 for true, 0 for false
+                val supplyQuantity = it.getInt(supplyQuantityColumnIndex)
+                val supplyUnit = it.getString(supplyUnitColumnIndex)
+                val crticalLevel = it.getInt(crticalLevelColumnIndex)
+                val isActive = it.getInt(isActiveColumnIndex)
+                val creationDate = it.getString(creationDateColumnIndex)
+
+                val product = Supplies(supplyID, supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate)
+                supplyList.add(product)
+            }
+        }
+        cursor?.close()
+        db.close()
+        return supplyList
+    }
     fun getProductByCode(itemCode: Any): Products? {
         val db = readableDatabase
         val cursor: Cursor? = db.rawQuery("SELECT * FROM products WHERE code = ?", arrayOf(itemCode.toString()))
@@ -390,6 +442,20 @@ class DatabaseHandler(private val context: Context) :
         val database = writableDatabase
         database.execSQL(sql, arrayOf(product.name, product.description, product.categoryId, product.sellingPrice, product.imageUri, product.code))
         database.close()
+    }
+
+    fun updateSupplyQuantity(supplyId: Int, newQuantity: Int): Boolean {
+        val sql = "UPDATE supplies SET supplyQuantity = ? WHERE supplyID = ?"
+        val database = writableDatabase
+        val statement = database.compileStatement(sql)
+
+        statement.bindLong(1, newQuantity.toLong())
+        statement.bindLong(2, supplyId.toLong())
+
+        val rowsAffected = statement.executeUpdateDelete()
+        database.close()
+
+        return rowsAffected > 0
     }
     @SuppressLint("Range")
     fun generateDatabaseDescription(): String {

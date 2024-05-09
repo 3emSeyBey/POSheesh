@@ -43,7 +43,7 @@ class CartFragment(private val items: MutableList<Map<String, Any>>) : DialogFra
 
         val btnPayWithCash: Button = view.findViewById(R.id.btn_paywithcash)
         btnPayWithCash.setOnClickListener {
-            showPaymentDialogCash()
+            showPaymentDialogCash(totalPriceTextView)
         }
 
         // Set click listener for the QR button
@@ -55,7 +55,7 @@ class CartFragment(private val items: MutableList<Map<String, Any>>) : DialogFra
         return builder.create()
     }
 
-    private fun showPaymentDialogCash() {
+    private fun showPaymentDialogCash(totalPriceTextView: TextView) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_paywithcash, null)
         val builder = AlertDialog.Builder(requireContext())
             .setView(dialogView)
@@ -65,6 +65,7 @@ class CartFragment(private val items: MutableList<Map<String, Any>>) : DialogFra
 
         // Find buttons in the dialog layout
         val btnPayWithCash = dialogView.findViewById<Button>(R.id.btnPayWithCash)
+        dialogView.findViewById<TextView>(R.id.totalPrice).setText(totalPriceTextView.text)
 
         // Set click listeners for the buttons
         btnPayWithCash.setOnClickListener {
@@ -75,6 +76,9 @@ class CartFragment(private val items: MutableList<Map<String, Any>>) : DialogFra
         dialog.show()
     }
 
+    private fun generateReceipt(){
+
+    }
     private fun showPaymentDialogQR() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_paywithqr, null)
         val builder = AlertDialog.Builder(requireContext())

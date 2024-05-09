@@ -101,8 +101,6 @@ class SalesFragment : Fragment(), ItemListAdapter.ItemClickListener, AddItemFrag
         }
         fabAddItem = view.findViewById(R.id.fabAddItem)
         fabAddItem.setOnClickListener {
-            // Add your logic here to show the cart's contents
-            // For example, you can navigate to the cart fragment
             addItem()
         }
 
