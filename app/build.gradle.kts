@@ -49,8 +49,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-vision:20.1.3")
     implementation("org.apache.poi:poi:5.2.5")
     implementation("org.apache.poi:poi-ooxml:5.2.5")
-    implementation("com.itextpdf:itext7-core:8.0.3")
-    implementation("com.itextpdf:html2pdf:5.0.3")
+
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation("com.github.skydoves:balloon:1.6.4")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")

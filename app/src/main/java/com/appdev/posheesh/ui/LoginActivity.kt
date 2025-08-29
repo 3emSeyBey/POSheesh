@@ -30,7 +30,7 @@ class LoginActivity : AppCompatActivity() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        
         binding = ActivityLogin2Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -63,6 +63,7 @@ class LoginActivity : AppCompatActivity() {
 
             if (enteredCode.isNotEmpty()) {
                 val db = DatabaseHandler(this)
+                
                 // If the entered code is not empty, check if it exists in the database
                 if (db.isUserCodeExists(enteredCode)) {
                     // If the user code exists, open the main activity

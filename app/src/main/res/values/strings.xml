@@ -18,5 +18,5 @@
     <string name="login_ek3_string">LOGIN</string>
     <string name="code_string">Code</string>
     <string name="enter_cashier_code_string">Enter Cashier Code</string>
-    <string name="title_activity_login">Login</string>
+
 </resources>

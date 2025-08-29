@@ -18,9 +18,19 @@ import com.appdev.posheesh.Classes.Supplies
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.util.Calendar
+import java.util.Locale
+import java.text.SimpleDateFormat
+import java.util.Random
 
 class DatabaseHandler(private val context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+    
+    init {
+        // Force database creation/upgrade
+        writableDatabase
+    }
+    
     override fun onCreate(db: SQLiteDatabase) {
         // Create the categories table
         db.execSQL(
@@ -79,14 +89,26 @@ class DatabaseHandler(private val context: Context) :
         db.execSQL(
             "CREATE TABLE IF NOT EXISTS sales (" +
                     "salesID INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    "totalAmount TEXT," +
-                    "supplyDescription TEXT NOT NULL," +
-                    "img_url TEXT NOT NULL," +
-                    "supplyQuantity INTEGER DEFAULT 0," +
-                    "supplyUnit TEXT NOT NULL," +
-                    "crticalLevel INTEGER DEFAULT 0," +
+                    "totalAmount REAL NOT NULL," +
+                    "orderDate TEXT NOT NULL," +
+                    "orderTime TEXT NOT NULL," +
+                    "paymentMethod TEXT NOT NULL," +
+                    "customerName TEXT," +
                     "isActive INTEGER DEFAULT 1," +
                     "creationDate TEXT" +
+                    ")"
+        )
+
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS order_items (" +
+                    "orderItemID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "salesID INTEGER NOT NULL," +
+                    "productCode TEXT NOT NULL," +
+                    "productName TEXT NOT NULL," +
+                    "quantity INTEGER NOT NULL," +
+                    "unitPrice REAL NOT NULL," +
+                    "totalPrice REAL NOT NULL," +
+                    "FOREIGN KEY (salesID) REFERENCES sales(salesID)" +
                     ")"
         )
 
@@ -156,7 +178,64 @@ class DatabaseHandler(private val context: Context) :
         db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('Ice', 'Ice cubes for chilling beverages', 'https://example.com/ice_image.jpg', 10000, 'ml', 1000, 1, CURRENT_TIMESTAMP);")
         db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('Coffee', 'Coffee concentrate for making coffee-based beverages', 'https://example.com/coffee_image.jpg', 5000, 'ml', 500, 1, CURRENT_TIMESTAMP);")
         db.execSQL("INSERT INTO supplies (supplyName, supplyDescription, img_url, supplyQuantity, supplyUnit, crticalLevel, isActive, creationDate) VALUES ('Milk', 'Milk for making milk-based beverages', 'https://example.com/milk_image.jpg', 10000, 'ml', 1000, 1, CURRENT_TIMESTAMP);")
+
+        // Insert sample sales data for analytics
+        val analyticsTime = System.currentTimeMillis()
+        val analyticsCalendar = Calendar.getInstance()
+        val random = Random()
+        
+        // Insert sales for the last 7 days
+        for (i in 6 downTo 0) {
+            analyticsCalendar.timeInMillis = analyticsTime
+            analyticsCalendar.add(Calendar.DAY_OF_YEAR, -i)
+            val orderDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(analyticsCalendar.time)
+            val orderTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(analyticsCalendar.time)
+            
+            // Generate random sales data
+            val totalAmount = 500.0 + random.nextDouble() * 1500.0 // Random between 500.0 and 2000.0
+            val paymentMethod = if (i % 2 == 0) "Cash" else "QR"
+            val customerNumber = 1001 + random.nextInt(8999) // Random between 1001 and 9999
+            val customerName = "Customer $customerNumber"
+            
+            val salesContentValues = ContentValues().apply {
+                put("totalAmount", totalAmount)
+                put("orderDate", orderDate)
+                put("orderTime", orderTime)
+                put("paymentMethod", paymentMethod)
+                put("customerName", customerName)
+                put("creationDate", analyticsTime.toString())
+            }
+            
+            val salesId = db.insert("sales", null, salesContentValues)
+            
+            // Insert order items for each sale
+            val products = listOf("P001", "P002", "P003", "P004")
+            val randomProductCount = 1 + random.nextInt(3) // Random between 1 and 3
+            val randomProducts = products.shuffled().take(randomProductCount)
+            
+            for (productCode in randomProducts) {
+                val product = getProductByCode(productCode)
+                if (product != null) {
+                    val quantity = 1 + random.nextInt(3) // Random between 1 and 3
+                    val unitPrice = product.sellingPrice
+                    val totalPrice = unitPrice * quantity
+                    
+                    val orderItemContentValues = ContentValues().apply {
+                        put("salesID", salesId)
+                        put("productCode", productCode)
+                        put("productName", product.name)
+                        put("quantity", quantity)
+                        put("unitPrice", unitPrice)
+                        put("totalPrice", totalPrice)
+                    }
+                    
+                    db.insert("order_items", null, orderItemContentValues)
+                }
+            }
+        }
+        
     }
+    
     fun addUser(role: String, employeeId: String): String? {
         val userCode = generateUniqueUserCode()
         return if (userCode != null) {
@@ -202,7 +281,8 @@ class DatabaseHandler(private val context: Context) :
     }
     private fun generateUserCode(): String {
         // Generate a random 6-digit number string
-        return (100000..999999).random().toString()
+        val random = Random()
+        return (100000 + random.nextInt(900000)).toString()
     }
     private fun saveImageToInternalStorage(resourceId: Int): Uri? {
         val bitmap = BitmapFactory.decodeResource(context.resources, resourceId)
@@ -528,15 +608,321 @@ class DatabaseHandler(private val context: Context) :
         val db = readableDatabase
         val selection = "usercode = ?"
         val selectionArgs = arrayOf(userCode)
+        
         val cursor = db.query("users", null, selection, selectionArgs, null, null, null)
         val count = cursor.count
         cursor.close()
-        db.close()
+        
         return count > 0
     }
     companion object {
         const val DATABASE_VERSION = 1
         const val DATABASE_NAME = "posheesh.db"
 
+    }
+
+    // Analytics Query Methods
+    fun getTotalSales(): Double {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT SUM(totalAmount) FROM sales WHERE isActive = 1", null)
+        var totalSales = 0.0
+        
+        cursor.use {
+            if (it.moveToFirst()) {
+                totalSales = it.getDouble(0)
+            }
+        }
+        
+        db.close()
+        return totalSales
+    }
+
+    fun getTotalOrders(): Int {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT COUNT(*) FROM sales WHERE isActive = 1", null)
+        var totalOrders = 0
+        
+        cursor.use {
+            if (it.moveToFirst()) {
+                totalOrders = it.getInt(0)
+            }
+        }
+        
+        db.close()
+        return totalOrders
+    }
+
+    fun getAverageOrderValue(): Double {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT AVG(totalAmount) FROM sales WHERE isActive = 1", null)
+        var averageOrderValue = 0.0
+        
+        cursor.use {
+            if (it.moveToFirst()) {
+                averageOrderValue = it.getDouble(0)
+            }
+        }
+        
+        db.close()
+        return averageOrderValue
+    }
+
+    fun getSalesByDateRange(startDate: String, endDate: String): List<Map<String, Any>> {
+        val db = readableDatabase
+        val sales = mutableListOf<Map<String, Any>>()
+        
+        val query = """
+            SELECT 
+                orderDate,
+                SUM(totalAmount) as dailySales,
+                COUNT(*) as dailyOrders
+            FROM sales 
+            WHERE isActive = 1 
+            AND orderDate BETWEEN ? AND ?
+            GROUP BY orderDate
+            ORDER BY orderDate
+        """.trimIndent()
+        
+        val cursor = db.rawQuery(query, arrayOf(startDate, endDate))
+        
+        cursor.use {
+            while (it.moveToNext()) {
+                val sale = mapOf(
+                    "date" to it.getString(0),
+                    "sales" to it.getDouble(1),
+                    "orders" to it.getInt(2)
+                )
+                sales.add(sale)
+            }
+        }
+        
+        db.close()
+        return sales
+    }
+
+    fun getTopSellingProducts(limit: Int = 5): List<Map<String, Any>> {
+        val db = readableDatabase
+        val products = mutableListOf<Map<String, Any>>()
+        
+        val query = """
+            SELECT 
+                oi.productCode,
+                oi.productName,
+                SUM(oi.quantity) as totalQuantity,
+                SUM(oi.totalPrice) as totalRevenue
+            FROM order_items oi
+            JOIN sales s ON oi.salesID = s.salesID
+            WHERE s.isActive = 1
+            GROUP BY oi.productCode, oi.productName
+            ORDER BY totalRevenue DESC
+            LIMIT ?
+        """.trimIndent()
+        
+        val cursor = db.rawQuery(query, arrayOf(limit.toString()))
+        
+        cursor.use {
+            while (it.moveToNext()) {
+                val product = mapOf(
+                    "productCode" to it.getString(0),
+                    "productName" to it.getString(1),
+                    "totalQuantity" to it.getInt(2),
+                    "totalRevenue" to it.getDouble(3)
+                )
+                products.add(product)
+            }
+        }
+        
+        db.close()
+        return products
+    }
+
+    fun getSalesByCategory(startDate: String, endDate: String): List<Map<String, Any>> {
+        val db = readableDatabase
+        val categories = mutableListOf<Map<String, Any>>()
+        
+        val query = """
+            SELECT 
+                c.name as categoryName,
+                SUM(oi.totalPrice) as categorySales,
+                COUNT(DISTINCT s.salesID) as orderCount
+            FROM order_items oi
+            JOIN sales s ON oi.salesID = s.salesID
+            JOIN products p ON oi.productCode = p.code
+            JOIN categories c ON p.category_id = c.id
+            WHERE s.isActive = 1 
+            AND s.orderDate BETWEEN ? AND ?
+            GROUP BY c.id, c.name
+            ORDER BY categorySales DESC
+        """.trimIndent()
+        
+        val cursor = db.rawQuery(query, arrayOf(startDate, endDate))
+        
+        cursor.use {
+            while (it.moveToNext()) {
+                val category = mapOf(
+                    "categoryName" to it.getString(0),
+                    "categorySales" to it.getDouble(1),
+                    "orderCount" to it.getInt(2)
+                )
+                categories.add(category)
+            }
+        }
+        
+        db.close()
+        return categories
+    }
+
+    fun getHourlySales(startDate: String, endDate: String): List<Map<String, Any>> {
+        val db = readableDatabase
+        val hourlySales = mutableListOf<Map<String, Any>>()
+        
+        val query = """
+            SELECT 
+                CAST(SUBSTR(orderTime, 1, 2) AS INTEGER) as hour,
+                SUM(totalAmount) as hourlySales,
+                COUNT(*) as hourlyOrders
+            FROM sales 
+            WHERE isActive = 1 
+            AND orderDate BETWEEN ? AND ?
+            GROUP BY CAST(SUBSTR(orderTime, 1, 2) AS INTEGER)
+            ORDER BY hour
+        """.trimIndent()
+        
+        val cursor = db.rawQuery(query, arrayOf(startDate, endDate))
+        
+        cursor.use {
+            while (it.moveToNext()) {
+                val hour = mapOf(
+                    "hour" to it.getInt(0),
+                    "sales" to it.getDouble(1),
+                    "orders" to it.getInt(2)
+                )
+                hourlySales.add(hour)
+            }
+        }
+        
+        db.close()
+        return hourlySales
+    }
+
+    fun getWeeklyTrends(weeks: Int = 4): List<Map<String, Any>> {
+        val db = readableDatabase
+        val weeklyTrends = mutableListOf<Map<String, Any>>()
+        
+        val query = """
+            SELECT 
+                strftime('%Y-%W', orderDate) as weekKey,
+                MIN(orderDate) as weekStart,
+                MAX(orderDate) as weekEnd,
+                SUM(totalAmount) as weeklySales,
+                COUNT(*) as weeklyOrders
+            FROM sales 
+            WHERE isActive = 1 
+            AND orderDate >= date('now', '-${weeks * 7} days')
+            GROUP BY strftime('%Y-%W', orderDate)
+            ORDER BY weekStart
+        """.trimIndent()
+        
+        val cursor = db.rawQuery(query, null)
+        
+        cursor.use {
+            while (it.moveToNext()) {
+                val week = mapOf(
+                    "weekKey" to it.getString(0),
+                    "weekStart" to it.getString(1),
+                    "weekEnd" to it.getString(2),
+                    "weeklySales" to it.getDouble(3),
+                    "weeklyOrders" to it.getInt(4)
+                )
+                weeklyTrends.add(week)
+            }
+        }
+        
+        db.close()
+        return weeklyTrends
+    }
+
+    fun getPaymentMethodDistribution(startDate: String, endDate: String): List<Map<String, Any>> {
+        val db = readableDatabase
+        val paymentMethods = mutableListOf<Map<String, Any>>()
+        
+        val query = """
+            SELECT 
+                paymentMethod,
+                COUNT(*) as count,
+                SUM(totalAmount) as totalAmount
+            FROM sales 
+            WHERE isActive = 1 
+            AND orderDate BETWEEN ? AND ?
+            GROUP BY paymentMethod
+            ORDER BY count DESC
+        """.trimIndent()
+        
+        val cursor = db.rawQuery(query, arrayOf(startDate, endDate))
+        
+        cursor.use {
+            while (it.moveToNext()) {
+                val payment = mapOf(
+                    "paymentMethod" to it.getString(0),
+                    "count" to it.getInt(1),
+                    "totalAmount" to it.getDouble(2)
+                )
+                paymentMethods.add(payment)
+            }
+        }
+        
+        db.close()
+        return paymentMethods
+    }
+
+    fun getLowStockSupplies(): List<Map<String, Any>> {
+        val db = readableDatabase
+        val lowStockSupplies = mutableListOf<Map<String, Any>>()
+        
+        val query = """
+            SELECT 
+                supplyID,
+                supplyName,
+                supplyQuantity,
+                crticalLevel,
+                supplyUnit
+            FROM supplies 
+            WHERE isActive = 1 
+            AND supplyQuantity <= crticalLevel
+            ORDER BY (crticalLevel - supplyQuantity) DESC
+        """.trimIndent()
+        
+        val cursor = db.rawQuery(query, null)
+        
+        cursor.use {
+            while (it.moveToNext()) {
+                val supply = mapOf(
+                    "supplyID" to it.getInt(0),
+                    "supplyName" to it.getString(1),
+                    "supplyQuantity" to it.getInt(2),
+                    "criticalLevel" to it.getInt(3),
+                    "supplyUnit" to it.getString(4)
+                )
+                lowStockSupplies.add(supply)
+            }
+        }
+        
+        db.close()
+        return lowStockSupplies
+    }
+
+    fun getInventoryValue(): Double {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT SUM(selling_price * 10) FROM products WHERE isActive = 1", null)
+        var inventoryValue = 0.0
+        
+        cursor.use {
+            if (it.moveToFirst()) {
+                inventoryValue = it.getDouble(0)
+            }
+        }
+        
+        db.close()
+        return inventoryValue
     }
 }

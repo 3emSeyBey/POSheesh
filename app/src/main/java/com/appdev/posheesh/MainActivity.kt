@@ -1,6 +1,6 @@
 package com.appdev.posheesh
 
-import PrintActivity
+
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -38,19 +38,22 @@ class MainActivity : AppCompatActivity(), FragmentChangeListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setSupportActionBar(binding.appBarMain.toolbar)
+        
         fab = binding.appBarMain.fab
         chatBoxBalloon = AIChatBoxBalloon(this)
         fab.setOnClickListener { view ->
                 chatBoxBalloon.show(view)
         }
+        
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
+        
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(setOf(
@@ -110,11 +113,8 @@ class MainActivity : AppCompatActivity(), FragmentChangeListener {
             }
 
             R.id.sales_menu_print -> {
-                val printExcelActivity = PrintActivity()
-                val dbHelper = DatabaseHandler(this)
-                val database = dbHelper.writableDatabase
-                val file = ExcelHandler().exportToExcel(this, database)
-                printExcelActivity.printExcelFile(this, file)
+                // Print functionality removed - PDF dependencies removed
+                Toast.makeText(this, "Print functionality is currently unavailable", Toast.LENGTH_SHORT).show()
             }
         }
         return super.onOptionsItemSelected(item)
